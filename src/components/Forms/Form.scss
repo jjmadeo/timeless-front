@@ -1,0 +1,17 @@
+@import '../../styles/style.scss';
+
+  .btn-custom {
+    background-color: #4CAF50 !important; // El color que deseas
+    border-color: #4CAF50 !important; // El color del borde si lo deseas igual al fondo
+    color: #ffffff !important; // Color del texto
+  
+    &:hover {
+      background-color: #45a049 !important;; // Color cuando pasas el mouse por encima
+      border-color: #45a049 !important;;
+    }
+  
+    &:disabled {
+      background-color: #cccccc !important;; // Color cuando el botón está deshabilitado
+      border-color: #cccccc !important;;
+    }
+  }

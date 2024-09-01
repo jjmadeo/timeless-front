@@ -1,0 +1,77 @@
+@import '../../styles/style.scss';
+
+// Estilos para el contenedor de login
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  // Estilos para la tarjeta de login
+  .login-card {
+    background-color: $light-gray !important;
+    border: none !important;
+    border-radius: 12px; // Bordes redondeados
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+  }
+  
+  // Estilos para los campos del formulario
+  .rounded-input {
+    border-radius: 8px; // Bordes redondeados
+  }
+  
+  // Estilos para el botón de login
+  .btn-login {
+    background-color: $secondary-green !important;
+    color: #ffffff;
+    border: 2px solid $secondary-green !important;
+    border-radius: 8px; // Bordes redondeados
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-login:hover {
+    background-color: darken($secondary-green, 10%) !important;
+  }
+  
+  // Estilos para el enlace de registro
+  .register-link {
+    margin-top: 15px;
+    font-size: 14px;
+    
+  
+    a {
+      color: $dark-gray !important;
+      font-weight: 900;
+      text-decoration: underline;
+    }
+  }
+
+  .form-control {
+    background-color: $light-gray !important;
+    border-color: $dark-gray !important;
+  }
+
+  .background-image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    z-index: 0; // Adjust opacity as needed
+  }
+
+  @media (max-width: 576px) {
+    // Contenedor principal del login
+  
+    .background-image {
+      display: none;
+    }
+  }
+  
+
