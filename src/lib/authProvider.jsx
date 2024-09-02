@@ -20,7 +20,7 @@ export const useAuth = () => {
 // Proveer la lógica de autenticación
 function useProvideAuth() {
   const [user, setUser] = useState(null);
-  {/*
+  
   const login = (email, password) => {
     // Guardar el estado de autenticación en el localStorage
     localStorage.setItem(
@@ -30,32 +30,11 @@ function useProvideAuth() {
     setUser({ email: email, password: password });
     return { email: email, password: password };
   };
-  */}
-
-  const login = async (email, password) => {
-    try {
-      const user = await mockLogin(email, password);
-      localStorage.setItem("state", JSON.stringify(user));
-      setUser(user);
-      return user;
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      throw error;
-    }
-  };
 
   const register = (email, password) => {
     // Aquí puedes agregar la lógica para registrar un nuevo usuario
   };
 
-  {/* 
-  const logout = () => {
-    // Eliminar el estado de autenticación del localStorage
-    localStorage.removeItem("state");
-    setUser(false);
-    return true;
-  };
-  */}
 
   const logout = async () => {
     try {

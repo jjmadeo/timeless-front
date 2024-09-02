@@ -6,6 +6,7 @@ import ProvideAuth from './lib/authProvider';
 import Login from './components/Login/Login';
 import './styles/style.scss';
 import LogoutButton from './components/Logout/Logout';
+import Schedule from './pages/Schedule';
 
 function App() {
   return (
@@ -15,8 +16,9 @@ function App() {
       <div className="container mt-4">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/schedule" element={<Schedule />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/login-test" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>
       </div>
