@@ -18,13 +18,17 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// eslint-disable-next-line react/prop-types
 const AppCalendar = ({ onSelectSlot, events }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
 
   useEffect(() => {
     setCurrentEvents(events);
   }, [events]);
+
+  const handleSelectSlot = (slotInfo) => {
+    const { start, end } = slotInfo;
+    onSelectSlot({ start, end });
+  };
 
   return (
     <Container className="my-4">
@@ -35,7 +39,7 @@ const AppCalendar = ({ onSelectSlot, events }) => {
         endAccessor="end"
         style={{ height: 500 }}
         selectable
-        onSelectSlot={onSelectSlot}
+        onSelectSlot={handleSelectSlot}
         onSelectEvent={event => alert(`Turno reservado:\n${event.title}`)}
         messages={{
           next: 'Sig.',

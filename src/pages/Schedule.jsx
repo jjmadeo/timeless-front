@@ -20,7 +20,7 @@ const Schedule = () => {
     'Estilista 2': [
       {
       title: 'Turno Reservado',
-      start: setMinutes(setHours(addDays(baseDate, 5), 14), 30), // Dentro de 5 días a las 14:30
+      start: setMinutes(setHours(addDays(baseDate, 5), 14), 30), 
       end: setMinutes(setHours(addDays(baseDate, 5), 15), 0),
       }
     ],

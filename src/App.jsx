@@ -7,6 +7,7 @@ import Login from './components/Login/Login';
 import './styles/style.scss';
 import LogoutButton from './components/Logout/Logout';
 import Schedule from './pages/Schedule';
+import Register from './components/register/Register';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>
       </div>

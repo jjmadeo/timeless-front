@@ -2,7 +2,7 @@
 // LOCAL
 const LOCAL_ENV = {
     environment: 'LOCAL',
-    base: 'http://localhost/api',
+    base: 'http://localhost:8082/v1/timeless/',
   };
   
   // DEV

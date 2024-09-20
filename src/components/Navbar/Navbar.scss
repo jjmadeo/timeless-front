@@ -1,13 +1,47 @@
 @import '../../styles/style.scss';
 
+
+
 .navbar.bg-primary {
-    background-color: $secondary-green !important;
+    background-color: $creamy !important;
   }
+
   
   .navbar-dark .navbar-nav .nav-link {
-    color: #ffffff !important;
+    font-weight: bold;  // Aplica negrita a todos los enlaces
+    font-size: 0.9rem;
+    color: $dark-gray !important;
   }
   
+  .navbar-dark .navbar-brand {
+    color: black !important; // Marca en negro
+    font-size: 1.5rem;  // Aumenta el tamaño de la letra
+    font-weight: bold;
+}
+
+.navbar-text{
+  font-weight: bold;  // Aplica negrita a todos los enlaces
+  font-size: 0.9rem;
+  color: $dark-gray !important;
+}
+
   .navbar-dark .navbar-nav .nav-link:hover {
     color: $primary-green !important;
+  }
+
+  .btn-primary{
+
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    color: $dark-gray !important;
+    background-color: $light-gray !important;
+    border-color: $light-gray !important;
+  }
+
+  .btn-secondary{
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    color: $dark-gray !important;
+    background-color: $secondary-green !important;
+    border-color: $secondary-green !important;
   }

@@ -1,0 +1,183 @@
+@import '../../styles/style.scss';
+
+// Estilos para el contenedor de registro
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+// Estilos para la tarjeta de selección de tipo de usuario
+.user-type-card {
+    background-color: $light-gray !important;
+    border: none !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px; // Aumentar el ancho máximo
+    padding: 20px;
+}
+
+// Estilos para la tarjeta de registro
+.register-card {
+    background-color: $light-gray !important;
+    border: none !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px; // Aumentar el ancho máximo
+    padding: 20px;
+}
+
+// Estilos para los campos del formulario
+.rounded-input {
+    border-radius: 8px; // Bordes redondeados
+}
+
+// Estilos para los botones de selección de tipo de usuario
+.btn-user-type {
+    background-color: $secondary-green !important;
+    color: #ffffff;
+    border: 2px solid $secondary-green !important;
+    border-radius: 8px; // Bordes redondeados
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-user-type:hover {
+    background-color: darken($secondary-green, 10%) !important;
+}
+
+// Estilos para el botón de registro
+.btn-register {
+    background-color: $secondary-green !important;
+    color: #ffffff;
+    border: 2px solid $secondary-green !important;
+    border-radius: 8px; // Bordes redondeados
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-register:hover {
+    background-color: darken($secondary-green, 10%) !important;
+}
+
+.form-control {
+    background-color: $light-gray !important;
+    border-color: $dark-gray !important;
+}
+
+// Estilos para el DatePicker
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker__input-container input {
+    width: 100%;
+    border-radius: 8px; // Bordes redondeados
+    padding: 10px;
+    border: 1px solid $dark-gray !important;
+    background-color: $light-gray !important;
+}
+
+.react-datepicker__input-container input:focus {
+    border-color: $secondary-green !important;
+    box-shadow: 0 0 0 0.2rem rgba($secondary-green, 0.25) !important;
+}
+
+.react-datepicker__day--selected, 
+.react-datepicker__day--in-selecting-range, 
+.react-datepicker__day--in-range, 
+.react-datepicker__month-text--selected, 
+.react-datepicker__month-text--in-selecting-range, 
+.react-datepicker__month-text--in-range, 
+.react-datepicker__quarter-text--selected, 
+.react-datepicker__quarter-text--in-selecting-range, 
+.react-datepicker__quarter-text--in-range, 
+.react-datepicker__year-text--selected, 
+.react-datepicker__year-text--in-selecting-range, 
+.react-datepicker__year-text--in-range {
+    border-radius: 0.3rem;
+    background-color: $secondary-green !important;
+    color: #fff !important;
+}
+
+.react-datepicker__day, 
+.react-datepicker__month-text, 
+.react-datepicker__quarter-text, 
+.react-datepicker__year-text {
+    cursor: pointer;
+}
+
+.react-datepicker__day-name, 
+.react-datepicker__day, 
+.react-datepicker__time-name {
+    color: #000;
+    display: inline-block;
+    width: 1.7rem;
+    line-height: 1.7rem;
+    text-align: center;
+    margin: 0.166rem;
+}
+
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+.react-datepicker__week {
+    white-space: nowrap;
+}
+
+.react-datepicker__month {
+    margin: 0.4rem;
+    text-align: center;
+}
+
+.react-datepicker {
+    font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+    font-size: 0.8rem;
+    background-color: #fff;
+    color: #000;
+    border: 1px solid $dark-gray !important;
+    border-radius: 0.3rem;
+    display: inline-block;
+    position: relative;
+    line-height: initial;
+}
+
+.react-datepicker-popper {
+    z-index: 1;
+    line-height: 0;
+}
+
+.row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1* var(--bs-gutter-y));
+    margin-right: calc(-.5* var(--bs-gutter-x));
+    margin-left: calc(-.5* var(--bs-gutter-x));
+}
+
+// Estilos responsivos
+@media (max-width: 768px) {
+    .register-card .row {
+        flex-direction: column;
+    }
+
+    .register-card .col-md-6 {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .background-image {
+        display: none;
+    }
+}
