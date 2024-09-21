@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import HomeEmpresa from './pages/HomeEmpresa';
 import Admin from './pages/Admin';
 import Navbar from './components/Navbar/Navbar';
 import ProvideAuth from './lib/authProvider';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/homeEmpresa" element={<HomeEmpresa />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>

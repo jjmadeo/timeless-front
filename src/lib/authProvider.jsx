@@ -4,7 +4,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useContext, createContext } from "react";
 import { mockLogin, mockLogout } from "./mockAut";
-import { loginRequest } from "../helpers/fetch";
+import { loginRequest, registerRequest } from "../helpers/fetch";
 
 
 // Crear el contexto de autenticación
@@ -25,21 +25,33 @@ export const useAuth = () => {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
   
-  
   const login = async (email, password) => {
     try {
       const loggedInUser = await loginRequest(email, password);
       if (loggedInUser) {
         setUser(loggedInUser.userInfo);
+        return loggedInUser;
       }
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
+      throw error; // Asegúrate de lanzar el error para manejarlo en el componente
     }
   };
 
-  const register = (email, password) => {
-    // Aquí puedes agregar la lógica para registrar un nuevo usuario
-  };
+    const register = async (payload) => {
+      try {
+        const registeredUser = await registerRequest(payload);
+        if (registeredUser) {
+          setUser(registeredUser.userInfo);
+          localStorage.setItem("state", JSON.stringify(registeredUser.userInfo));
+          return registeredUser;
+        }
+      } catch (error) {
+        console.error('Error al registrar:', error);
+        throw error;
+      }
+    };
+  
 
 
   const logout = async () => {
@@ -73,19 +85,6 @@ function useProvideAuth() {
         return null; 
     }
 };
-
-  useEffect(() => {
-    const checkUser = () => {
-      const storage = localStorage.getItem("state");
-      if (storage !== null) {
-        setUser(JSON.parse(storage));
-      } else {
-        setUser(false);
-      }
-    };
-
-    checkUser();
-  }, []);
 
   
 

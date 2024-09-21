@@ -2,3 +2,6 @@
 @import './base/base';
 
 
+body {
+    background-color: darken($creamy, 5%) !important;
+}

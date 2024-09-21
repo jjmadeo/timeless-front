@@ -14,7 +14,8 @@ export const postRequest = async (endpoint, data) => {
   // Verifica si la respuesta es correcta
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error || 'Error en la solicitud');
+    // Aquí puedes lanzar un error más descriptivo
+    throw new Error(`${errorData.error.title}`);
   }
 
   return response.json();
@@ -44,6 +45,7 @@ export const loginRequest = async (email, password) => {
     const data = { correo: email, clave: password };
     const response = await postRequest('authenticate', data); 
       
+    // Si la API devuelve un token, es un éxito
     if (response.token) {
       console.log("Token recibido:", response.token);
 
@@ -55,12 +57,26 @@ export const loginRequest = async (email, password) => {
       localStorage.setItem("token", JSON.stringify(response));
 
       return { email, token: response.token, userInfo: jsonPayload }; 
-    } else {
-      throw new Error('No se recibió un token válido');
+    } 
+    
+    // Si hay un error, maneja el mensaje del servidor
+    else if (response.error) {
+      throw new Error(response.error.title || 'Error desconocido');
     }
+    
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
     throw error;
   }
 };
 
+
+export const registerRequest = async (payload) => {
+  try {
+    const response = await postRequest('register', payload); // Cambia 'register' al endpoint correcto
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
