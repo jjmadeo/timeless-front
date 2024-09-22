@@ -9,6 +9,7 @@ import './styles/style.scss';
 import LogoutButton from './components/Logout/Logout';
 import Schedule from './pages/Schedule';
 import Register from './components/register/Register';
+import CrearEmpresa from './pages/CrearEmpresa';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
           <Route path="/homeEmpresa" element={<HomeEmpresa />} />
+          <Route path="/crearEmpresa" element={<CrearEmpresa />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>

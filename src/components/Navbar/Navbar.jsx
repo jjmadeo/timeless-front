@@ -6,7 +6,6 @@ import logo from '../../../public/assets/logo.png';
 import { getProfile } from '../../helpers/fetch';
 import './Navbar.scss';
 
-
 const NavigationBar = () => {
   const { user, logout } = useContext(AuthContext);
   const [userProfile, setUserProfile] = useState(null);
@@ -24,8 +23,10 @@ const NavigationBar = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      
       try {
-        const profile = await getProfile();
+        const token = JSON.parse(localStorage.getItem('token')).token; 
+        const profile = await getProfile(token);
         setUserProfile(profile);
       } catch (error) {
         console.error('Error al obtener el perfil del usuario:', error);
@@ -38,8 +39,6 @@ const NavigationBar = () => {
   }, [user]);
 
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
-  console.log("Rol del usuario:", decodeToken(localStorage.getItem("token")));
-
 
   return (
     <Navbar bg="primary" variant="dark" expand="md">
@@ -52,7 +51,7 @@ const NavigationBar = () => {
           <Nav className="me-auto">
             {!user ? (
               <>
-                             
+                {/* Links for non-authenticated users */}
               </>
             ) : userRole === '[ROLE_GENERAL]' ? (
               <>
@@ -62,7 +61,7 @@ const NavigationBar = () => {
               <>
                 <Nav.Link as={Link} to="/empresa">Opciones de Empresa</Nav.Link>
                 {userProfile && userProfile.id_empresa === null && (
-                  <Nav.Link as={Link} to="/crear-empresa">Crear Empresa</Nav.Link>
+                  <Button variant="secondary" as={Link} to="/crearEmpresa">Crear Empresa</Button>
                 )}
               </>
             ) : null}
@@ -75,11 +74,11 @@ const NavigationBar = () => {
               </>
             ) : (
               <>
-              <Nav.Link className="mx-2" as={Link} to="/about">Nosotros</Nav.Link>
-              <Nav.Link className="mx-2" as={Link} to="/products">Productos</Nav.Link>
-              <Nav.Link className="mx-2" as={Link} to="/help">Ayuda</Nav.Link>   
-              <Button className="me-4" variant='primary' as={Link} to="/login">Iniciar sesión</Button>
-              <Button variant='secondary' as={Link} to="/register">Registrarse</Button>
+                <Nav.Link className="mx-2" as={Link} to="/about">Nosotros</Nav.Link>
+                <Nav.Link className="mx-2" as={Link} to="/products">Productos</Nav.Link>
+                <Nav.Link className="mx-2" as={Link} to="/help">Ayuda</Nav.Link>
+                <Button className="me-4" variant='primary' as={Link} to="/login">Iniciar sesión</Button>
+                <Button variant='secondary' as={Link} to="/register">Registrarse</Button>
               </>
             )}
           </Nav>
