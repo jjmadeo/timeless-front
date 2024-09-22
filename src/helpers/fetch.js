@@ -70,13 +70,33 @@ export const loginRequest = async (email, password) => {
   }
 };
 
-
 export const registerRequest = async (payload) => {
   try {
     const response = await postRequest('register', payload); // Cambia 'register' al endpoint correcto
     return response;
   } catch (error) {
     console.error('Error al registrar:', error);
+    throw error;
+  }
+};
+
+export const getProfile = async () => {
+  try {
+    const response = await getRequest('perfil'); 
+    return response;
+  } catch (error) {
+    console.error('Error al obtener el perfil:', error);
+    throw error;
+  }
+};
+
+
+export const getUsers = async () => {
+  try {
+    const response = await getRequest('usuarios'); 
+    return response;
+  } catch (error) {
+    console.error('Error al obtener el perfil:', error);
     throw error;
   }
 };

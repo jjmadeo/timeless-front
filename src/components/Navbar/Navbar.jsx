@@ -1,12 +1,15 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../lib/authProvider';
 import logo from '../../../public/assets/logo.png';
+import { getProfile } from '../../helpers/fetch';
 import './Navbar.scss';
+
 
 const NavigationBar = () => {
   const { user, logout } = useContext(AuthContext);
+  const [userProfile, setUserProfile] = useState(null);
 
   // Función para decodificar el token
   const decodeToken = (token) => {
@@ -19,9 +22,23 @@ const NavigationBar = () => {
     return null;
   };
 
-  const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
-  const email = user ? decodeToken(localStorage.getItem("token")).sub : null;
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await getProfile();
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Error al obtener el perfil del usuario:', error);
+      }
+    };
 
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
+  console.log("Rol del usuario:", decodeToken(localStorage.getItem("token")));
 
 
   return (
@@ -44,13 +61,16 @@ const NavigationBar = () => {
             ) : userRole === '[ROLE_EMPRESA]' ? (
               <>
                 <Nav.Link as={Link} to="/empresa">Opciones de Empresa</Nav.Link>
+                {userProfile && userProfile.id_empresa === null && (
+                  <Nav.Link as={Link} to="/crear-empresa">Crear Empresa</Nav.Link>
+                )}
               </>
             ) : null}
           </Nav>
           <Nav className="ml-auto">
             {user ? (
               <>
-                <span className="navbar-text me-2">Bienvenido, {email}!</span>
+                <Nav.Link className="mx-2" as={Link} to="/profile">Perfil</Nav.Link>
                 <Button className="me-4" variant='primary' onClick={logout}>Cerrar sesión</Button>
               </>
             ) : (
