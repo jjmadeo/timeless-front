@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../lib/authProvider";
+import { AuthContext, useAuth } from "../../lib/authProvider";
 import {
   Button,
   Card,
@@ -12,18 +12,19 @@ import {
 import "./Login.scss";
 
 const Login = () => {
-  const { login, user } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [toastMessage, setToastMessage] = useState(""); // Estado para el mensaje del toast
   const [showToast, setShowToast] = useState(false); // Estado para mostrar/ocultar el toast
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(email, password);
+      const res = await auth.login(email, password);
 
       if (res) {
         setToastMessage("Login exitoso");
@@ -32,7 +33,7 @@ const Login = () => {
 
 
         console.log("Usuario logueado:", res.userInfo.ROL);
-
+        console.log(res);
         if (res.userInfo.ROL === "[ROLE_GENERAL]") {
           navigate("/admin-dashboard");
         } else if (res.userInfo.ROL === "[ROLE_EMPRESA]") {
@@ -82,7 +83,6 @@ const Login = () => {
               Iniciar sesión
             </Button>
           </Form>
-          {user && <p className="text-center mt-3">Welcome, {user.email}!</p>}
         </Card.Body>
       </Card>
       {/* Toast container */}

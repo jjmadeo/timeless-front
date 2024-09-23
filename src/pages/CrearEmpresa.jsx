@@ -12,6 +12,7 @@ import { Stepper, Step } from "react-form-stepper";
 import { useNavigate } from "react-router-dom";
 import { empresaRequest } from "../helpers/fetch";
 import "./styles/CrearEmpresa.scss";
+import { useAuth } from "../lib/authProvider";
 
 const CrearEmpresa = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -44,6 +45,7 @@ const CrearEmpresa = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState(false);
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -289,6 +291,7 @@ const CrearEmpresa = () => {
         setToastMessage("La empresa se ha creado con exito");
         setError(false);
         setShowToast(true);
+        auth.fetchUserProfile();
         navigate("/HomeEmpresa");
       } else {
         throw new Error(response.error.title);

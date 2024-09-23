@@ -1,15 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../../lib/authProvider';
+import { AuthContext, useAuth } from '../../lib/authProvider';
 import logo from '../../../public/assets/logo.png';
-import { getProfile } from '../../helpers/fetch';
 import './Navbar.scss';
 
 const NavigationBar = () => {
   const { user, logout } = useContext(AuthContext);
   const [userProfile, setUserProfile] = useState(null);
-
+  const auth = useAuth();
   // Función para decodificar el token
   const decodeToken = (token) => {
     if (token) {
@@ -22,21 +21,9 @@ const NavigationBar = () => {
   };
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      
-      try {
-        const token = JSON.parse(localStorage.getItem('token')).token; 
-        const profile = await getProfile(token);
-        setUserProfile(profile);
-      } catch (error) {
-        console.error('Error al obtener el perfil del usuario:', error);
-      }
-    };
+    setUserProfile(auth.userProfile || null);
 
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
+  }, [user, auth]);
 
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
 
