@@ -1,6 +1,6 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext, useAuth } from "../../lib/authProvider";
+import {  useAuth } from "../../lib/authProvider";
 import {
   Button,
   Card,
@@ -12,7 +12,6 @@ import {
 import "./Login.scss";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -46,7 +45,7 @@ const Login = () => {
         console.log("Usuario logueado:", res.userInfo.ROL);
         console.log(res);
         if (res.userInfo.ROL === "[ROLE_GENERAL]") {
-          navigate("/admin-dashboard");
+          navigate("/HomeGeneral");
         } else if (res.userInfo.ROL === "[ROLE_EMPRESA]") {
           navigate("/HomeEmpresa");
         } else {

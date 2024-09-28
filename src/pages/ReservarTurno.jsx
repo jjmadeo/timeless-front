@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 //import BookingForm from '../pages/BookingForm';
 import AppCalendar from '../components/Calendar/Calendar';
 
-const Home = () => {
+const ReservarTurno = () => {
   {/* 
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -64,4 +64,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default ReservarTurno;

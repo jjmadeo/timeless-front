@@ -28,7 +28,7 @@ const NavigationBar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/'); // Redirigir al home
+    navigate('/landingPage'); 
   };  
 
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
@@ -36,7 +36,7 @@ const NavigationBar = () => {
   return (
     <Navbar bg="primary" variant="dark" expand="md">
       <Container>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={Link} to="/landingPage">
           <img src={logo} alt="Logo" width="30" height="50" className="d-inline-block me-3" />{' '}timeless
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -48,11 +48,13 @@ const NavigationBar = () => {
               </>
             ) : userRole === '[ROLE_GENERAL]' ? (
               <>
-                <Nav.Link as={Link} to="/schedule">Pedir Turno</Nav.Link>
+                <Nav.Link as={Link} to="/homeGeneral">Inicio</Nav.Link>
+                <Nav.Link as={Link} to="/reservarTurno">Reservar turno</Nav.Link>
               </>
             ) : userRole === '[ROLE_EMPRESA]' ? (
               <>
-                <Nav.Link as={Link} to="/empresa">Opciones de Empresa</Nav.Link>
+                <Nav.Link as={Link} to="/homeEmpresa">Inicio</Nav.Link>
+                <Nav.Link as={Link} to="/schedule">Agendas</Nav.Link>
                 {userProfile && userProfile.id_empresa === null && (
                   <Button variant="secondary" as={Link} to="/crearEmpresa">Crear Empresa</Button>
                 )}
