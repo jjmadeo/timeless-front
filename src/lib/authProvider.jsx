@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useContext, createContext } from "react";
-import { mockLogin, mockLogout } from "./mockAut";
 import { getProfile, loginRequest, registerRequest } from "../helpers/fetch";
 
 
@@ -76,7 +75,6 @@ function useProvideAuth() {
 
   const logout = async () => {
     try {
-      await mockLogout();
       localStorage.removeItem("state");
       setUser(null);
     } catch (error) {

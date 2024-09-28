@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext, useAuth } from '../../lib/authProvider';
 import logo from '../../../public/assets/logo.png';
 import './Navbar.scss';
@@ -9,6 +9,7 @@ const NavigationBar = () => {
   const { user, logout } = useContext(AuthContext);
   const [userProfile, setUserProfile] = useState(null);
   const auth = useAuth();
+  const navigate = useNavigate();
   // Función para decodificar el token
   const decodeToken = (token) => {
     if (token) {
@@ -24,6 +25,11 @@ const NavigationBar = () => {
     setUserProfile(auth.userProfile || null);
 
   }, [user, auth]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/'); // Redirigir al home
+  };  
 
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
 
@@ -57,7 +63,7 @@ const NavigationBar = () => {
             {user ? (
               <>
                 <Nav.Link className="mx-2" as={Link} to="/profile">Perfil</Nav.Link>
-                <Button className="me-4" variant='primary' onClick={logout}>Cerrar sesión</Button>
+                <Button className="me-4" variant='primary' onClick={handleLogout}>Cerrar sesión</Button>
               </>
             ) : (
               <>

@@ -27,6 +27,47 @@ export const postRequest = async (endpoint, data, token = null) => {
   return response.json();
 };
 
+export const putRequest = async (endpoint, data, token = null) => {
+  console.log('API Base URL:', environment.base);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(environment.base + endpoint, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  // Verifica si la respuesta es correcta
+  if (!response.ok) {
+    const errorData = await response.json();
+    // Aquí puedes lanzar un error más descriptivo
+    throw new Error(`${errorData.error.title}`);
+  }
+
+    // Maneja respuestas vacías o no JSON
+    const text = await response.text();
+  let jsonResponse = {};
+  if (text) {
+    try {
+      jsonResponse = JSON.parse(text);
+    } catch (error) {
+      throw new Error('La respuesta no es un JSON válido');
+    }
+  }
+
+  return {
+    status: response.status,
+    data: jsonResponse
+  };
+};
+
 export const getRequest = async (endpoint, token = null) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -114,3 +155,14 @@ export const empresaRequest = async (payload, token) => {
     throw error;
   }
 };
+
+export const actualizarPerfil = async (id, profile, token) => {
+  try {
+    const response = await putRequest(`usuario/${id}`, profile, token);
+    return response;
+  } catch (error) {
+    console.error('Error al actualizar el perfil:', error);
+    throw error;
+  }
+};
+

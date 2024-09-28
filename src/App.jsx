@@ -6,9 +6,9 @@ import Navbar from './components/Navbar/Navbar';
 import ProvideAuth from './lib/authProvider';
 import Login from './components/Login/Login';
 import './styles/style.scss';
-import LogoutButton from './components/Logout/Logout';
 import Schedule from './pages/Schedule';
 import Register from './components/register/Register';
+import Profile from './pages/Profile';
 import CrearEmpresa from './pages/CrearEmpresa';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
           <Route path="/homeEmpresa" element={<HomeEmpresa />} />
           <Route path="/crearEmpresa" element={<CrearEmpresa />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/logout" element={<LogoutButton />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </Router>

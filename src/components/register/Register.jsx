@@ -13,9 +13,11 @@ import {
 } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const { register } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [userType, setUserType] = useState(null);
   const [formData, setFormData] = useState({
     email: "",
@@ -88,9 +90,8 @@ const Register = () => {
 
       var res = await register(payload);
       if (res) {
-        setToastMessage("Registro exitoso");
-        setError(false);
-        setShowToast(true);
+        localStorage.setItem("registerSuccess", "Registro exitoso"); // Guardar el mensaje en el almacenamiento local
+        navigate("/login");
       }
     } catch (err) {
       setError(true);
