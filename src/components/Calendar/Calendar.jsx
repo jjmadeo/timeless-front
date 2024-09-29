@@ -41,6 +41,7 @@ const AppCalendar = ({ onSelectSlot, events }) => {
         selectable
         onSelectSlot={handleSelectSlot}
         onSelectEvent={event => alert(`Turno reservado:\n${event.title}`)}
+        views={['week', 'day', 'agenda']} 
         messages={{
           next: 'Sig.',
           previous: 'Ant.',
@@ -55,6 +56,14 @@ const AppCalendar = ({ onSelectSlot, events }) => {
           noEventsInRange: 'No hay eventos en este rango.',
           showMore: total => `+ Ver más (${total})`
         }}
+        formats={{
+          dayFormat: (date, culture, localizer) => localizer.format(date, 'EEEE', culture), // Nombre completo del día en español
+          weekdayFormat: (date, culture, localizer) => localizer.format(date, 'EEE', culture), // Nombre abreviado del día en español
+          monthHeaderFormat: (date, culture, localizer) => localizer.format(date, 'MMMM yyyy', culture), // Mes y año en español
+          dayHeaderFormat: (date, culture, localizer) => localizer.format(date, 'EEEE, MMMM d', culture), // Día, mes y día del mes en español
+          agendaDateFormat: (date, culture, localizer) => localizer.format(date, 'EEEE, d MMMM', culture), // Fecha en la vista de agenda
+        }}
+        culture="es" // Asegurarse de que la cultura sea español
       />
     </Container>
   );

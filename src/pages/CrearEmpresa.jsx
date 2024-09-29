@@ -81,75 +81,21 @@ const CrearEmpresa = () => {
     });
   };
 
-  const handleAddParametro = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      parametros: [
-        ...prevData.parametros,
-        { clave: "", valor: "", descripcion: "" },
-      ],
-    }));
-  };
-
-  const handleRemoveParametro = (index) => {
+  
+  const handleToggleDiaLaboral = (dia) => {
     setFormData((prevData) => {
-      const newParametros = prevData.parametros.filter((_, i) => i !== index);
-      return { ...prevData, parametros: newParametros };
+        const dias_laborales = prevData.calendario.dias_laborales.includes(dia)
+            ? prevData.calendario.dias_laborales.filter((d) => d !== dia)
+            : [...prevData.calendario.dias_laborales, dia];
+        return {
+            ...prevData,
+            calendario: {
+                ...prevData.calendario,
+                dias_laborales,
+            },
+        };
     });
-  };
-
-  const handleAddAusencia = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      calendario: {
-        ...prevData.calendario,
-        ausencias: [
-          ...prevData.calendario.ausencias,
-          { desde: "", hasta: "", descripcion: "" },
-        ],
-      },
-    }));
-  };
-
-  const handleRemoveAusencia = (index) => {
-    setFormData((prevData) => {
-      const newAusencias = prevData.calendario.ausencias.filter(
-        (_, i) => i !== index
-      );
-      return {
-        ...prevData,
-        calendario: {
-          ...prevData.calendario,
-          ausencias: newAusencias,
-        },
-      };
-    });
-  };
-
-  const handleAddDiaLaboral = (e) => {
-    const dia = e.target.value;
-    if (!formData.calendario.dias_laborales.includes(dia)) {
-      setFormData((prevData) => ({
-        ...prevData,
-        calendario: {
-          ...prevData.calendario,
-          dias_laborales: [...prevData.calendario.dias_laborales, dia],
-        },
-      }));
-    }
-  };
-
-  const handleRemoveDiaLaboral = (dia) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      calendario: {
-        ...prevData.calendario,
-        dias_laborales: prevData.calendario.dias_laborales.filter(
-          (d) => d !== dia
-        ),
-      },
-    }));
-  };
+};
 
   const handleAddLineaAtencion = () => {
     setFormData((prevData) => ({
@@ -175,10 +121,8 @@ const CrearEmpresa = () => {
       case 0:
         return validateDatosFiscales();
       case 1:
-        return validateParametros();
-      case 2:
         return validateCalendario();
-      case 3:
+      case 2:
         return validateLineasAtencion();
       default:
         return true;
@@ -207,16 +151,8 @@ const CrearEmpresa = () => {
     return true;
   };
 
-  const validateParametros = () => {
-    if (formData.parametros.length === 0) {
-      return true;
-    } else {
-      return true;
-    }
-  };
-
   const validateCalendario = () => {
-    const { hora_apertura, hora_cierre, dias_laborales, ausencias } =
+    const { hora_apertura, hora_cierre, dias_laborales} =
       formData.calendario;
     if (!hora_apertura || !hora_cierre || dias_laborales.length === 0) {
       setToastMessage("Todos los campos del calendario son obligatorios.");
@@ -232,16 +168,7 @@ const CrearEmpresa = () => {
       setShowToast(true);
       return false;
     }
-    for (const ausencia of ausencias) {
-      if (ausencia.desde >= ausencia.hasta) {
-        setToastMessage(
-          "La fecha de inicio de la ausencia no puede ser mayor o igual a la fecha de fin."
-        );
-        setError(true);
-        setShowToast(true);
-        return false;
-      }
-    }
+    
     return true;
   };
 
@@ -306,12 +233,11 @@ const CrearEmpresa = () => {
   };
 
   return (
-    <Container fluid className="register-container">
-        <Row>
-            <Col md={10}>
+    <Container fluid className="register-container" id="container-form">
+        <Row className="crear-empresa-container">
+            <Col md={12}>
                 <Stepper activeStep={currentStep}>
                     <Step label="Datos Fiscales" />
-                    <Step label="Parámetros" />
                     <Step label="Calendario" />
                     <Step label="Líneas de Atención y Rubro" />
                 </Stepper>
@@ -432,60 +358,6 @@ const CrearEmpresa = () => {
                     )}
                     {currentStep === 1 && (
                         <div>
-                            <h3>Parámetros</h3>
-                            {formData.parametros.map((parametro, index) => (
-                                <Row key={index} className="item-container">
-                                    <Col md={4}>
-                                        <Form.Group controlId={`clave-${index}`}>
-                                            <Form.Label>Clave</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name={`parametros.${index}.clave`}
-                                                value={parametro.clave}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group controlId={`valor-${index}`}>
-                                            <Form.Label>Valor</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name={`parametros.${index}.valor`}
-                                                value={parametro.valor}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group controlId={`descripcion-${index}`}>
-                                            <Form.Label>Descripción</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name={`parametros.${index}.descripcion`}
-                                                value={parametro.descripcion}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={12} className="text-right">
-                                        <Button
-                                            variant="danger"
-                                            className="btn-quitar"
-                                            onClick={() => handleRemoveParametro(index)}
-                                        >
-                                            Quitar
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            ))}
-                            <Button variant="primary" onClick={handleAddParametro}>
-                                Agregar Parámetro
-                            </Button>
-                        </div>
-                    )}
-                    {currentStep === 2 && (
-                        <div>
                             <h3>Calendario</h3>
                             <Row>
                                 <Col md={6}>
@@ -512,97 +384,29 @@ const CrearEmpresa = () => {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col md={12}>
-                                    <Form.Group controlId="dias_laborales">
-                                        <Form.Label>Días Laborales</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            name="calendario.dias_laborales"
-                                            onChange={handleAddDiaLaboral}
-                                        >
-                                            <option value="">Seleccione un día</option>
-                                            <option value="Domingo">Domingo</option>
-                                            <option value="Lunes">Lunes</option>
-                                            <option value="Martes">Martes</option>
-                                            <option value="Miércoles">Miércoles</option>
-                                            <option value="Jueves">Jueves</option>
-                                            <option value="Viernes">Viernes</option>
-                                            <option value="Sábado">Sábado</option>
-                                        </Form.Control>
-                                    </Form.Group>
-                                    <Row>
-                                        <Col>
-                                            <h5>Días Laborales</h5>
-                                            {formData.calendario.dias_laborales.map(
-                                                (dia, index) => (
-                                                    <div key={index} className="item-container">
-                                                        <span className="item-text">{dia}</span>
-                                                        <button
-                                                            className="btn-quitar"
-                                                            onClick={() => handleRemoveDiaLaboral(dia)}
-                                                        >
-                                                            Quitar
-                                                        </button>
-                                                    </div>
-                                                )
-                                            )}
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                            <h3>Ausencias</h3>
-                            {formData.calendario.ausencias.map((ausencia, index) => (
-                                <Row key={index} className="item-container">
-                                    <Col md={4}>
-                                        <Form.Group controlId={`desde-${index}`}>
-                                            <Form.Label>Desde</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                name={`calendario.ausencias.${index}.desde`}
-                                                value={ausencia.desde}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group controlId={`hasta-${index}`}>
-                                            <Form.Label>Hasta</Form.Label>
-                                            <Form.Control
-                                                type="date"
-                                                name={`calendario.ausencias.${index}.hasta`}
-                                                value={ausencia.hasta}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={4}>
-                                        <Form.Group controlId={`descripcion-${index}`}>
-                                            <Form.Label>Descripción</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name={`calendario.ausencias.${index}.descripcion`}
-                                                value={ausencia.descripcion}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={12} className="text-right">
-                                        <Button
-                                            variant="danger"
-                                            className="btn-quitar"
-                                            onClick={() => handleRemoveAusencia(index)}
-                                        >
-                                            Quitar
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            ))}
-                            <Button variant="primary" onClick={handleAddAusencia}>
-                                Agregar Ausencia
-                            </Button>
+    <Col md={12}>
+        <Form.Group controlId="dias_laborales">
+            <Form.Label>Días Laborales</Form.Label>
+            <div className="dias-laborales-container">
+                {["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia) => (
+                    <Form.Check
+                        inline
+                        key={dia}
+                        type="checkbox"
+                        label={dia}
+                        value={dia}
+                        checked={formData.calendario.dias_laborales.includes(dia)}
+                        onChange={(e) => handleToggleDiaLaboral(e.target.value)}
+                    />
+                ))}
+            </div>
+        </Form.Group>
+    </Col>
+</Row>
+                            
                         </div>
                     )}
-                    {currentStep === 3 && (
+                    {currentStep === 2 && (
                         <div>
                             <h3>Rubro</h3>
                             <Row>
@@ -667,7 +471,7 @@ const CrearEmpresa = () => {
                                 Atrás
                             </Button>
                         )}
-                        {currentStep < 3 ? (
+                        {currentStep < 2 ? (
                             <Button
                                 variant="primary"
                                 onClick={(e) => {
