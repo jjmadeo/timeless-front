@@ -8,7 +8,7 @@ const mockCompanies = [
   {
     id: 1,
     name: 'Empresa A',
-    location: { lat: -34.8008234, lng: -58.4505171 },
+    location: { lat: -34.6911, lng: -58.5638 },
     lines: [
       { id: 1, name: 'Linea 1', schedule: { Monday: ['09:00 AM', '10:00 AM', '11:00 AM'], Tuesday: ['01:00 PM', '02:00 PM', '03:00 PM'], Wednesday: [], Thursday: ['09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM'], Friday: ['02:00 PM', '03:00 PM'], Saturday: ['09:00 AM', '10:00 AM'], Sunday: [] } },
       { id: 2, name: 'Linea 2', schedule: { Monday: ['01:00 PM', '02:00 PM'], Tuesday: ['09:00 AM', '10:00 AM'], Wednesday: ['11:00 AM'], Thursday: ['02:00 PM', '03:00 PM'], Friday: ['09:00 AM', '10:00 AM'], Saturday: [], Sunday: [] } },
@@ -17,7 +17,7 @@ const mockCompanies = [
   {
     id: 2,
     name: 'Empresa B',
-    location: { lat: 34.052235, lng: -118.243683 },
+    location: { lat: -34.6711, lng: -58.5638 },
     lines: [
       { id: 1, name: 'Linea 1', schedule: { Monday: ['09:00 AM', '10:00 AM'], Tuesday: ['01:00 PM', '02:00 PM'], Wednesday: [], Thursday: ['09:00 AM', '10:00 AM'], Friday: ['02:00 PM', '03:00 PM'], Saturday: ['09:00 AM'], Sunday: [] } },
     ],
@@ -41,15 +41,17 @@ const ReservarTurno = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await fetch('http://api.ipapi.com/api/check?access_key=844e1704594ca244ad1eb0364f072e26');
+        // Llamada a ipinfo.io con tu token
+        const response = await fetch('https://ipinfo.io/json?token=85e8e7ad2053f3');
         const data = await response.json();
+        const [lat, lng] = data.loc.split(','); // 'loc' devuelve una cadena con latitud y longitud separada por comas
         const currentLocation = {
-          lat: data.latitude,
-          lng: data.longitude,
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
         };
         console.log('Ubicación obtenida:', currentLocation);
         setLocation(currentLocation);
-        fetchCompanies(data.latitude, data.longitude);
+        fetchCompanies(parseFloat(lat), parseFloat(lng));
       } catch (error) {
         console.error('Error al obtener ubicación:', error.message);
       } finally {
@@ -71,6 +73,7 @@ const ReservarTurno = () => {
     setSelectedDate(null);
     setAvailableTimes([]);
     setSelectedTime(null);
+    setLocation(company.location); 
   };
 
   const handleLineSelected = (line) => {
@@ -127,11 +130,21 @@ const ReservarTurno = () => {
         </div>
       ) : location ? (
         <>
+
           <Row>
             <Col md={12} className="mb-4">
               <MapComponent location={location} />
             </Col>
           </Row>
+          {bookingDetails && (
+            <Alert variant="success" className="mt-3">
+              <h3>Reserva Confirmada</h3>
+              <p>Empresa: {bookingDetails.company.name}</p>
+              <p>Linea: {bookingDetails.line.name}</p>
+              <p>Fecha: {new Date(bookingDetails.date).toLocaleDateString()}</p>
+              <p>Hora: {bookingDetails.time}</p>
+            </Alert>
+          )}
           <Row className="w-full">
             <Col md={3} className="mb-4">
               <Card>
@@ -209,15 +222,7 @@ const ReservarTurno = () => {
             )}
           </Row>
 
-          {bookingDetails && (
-            <Alert variant="success" className="mt-3">
-              <h3>Reserva Confirmada</h3>
-              <p>Empresa: {bookingDetails.company.name}</p>
-              <p>Linea: {bookingDetails.line.name}</p>
-              <p>Fecha: {new Date(bookingDetails.date).toLocaleDateString()}</p>
-              <p>Hora: {bookingDetails.time}</p>
-            </Alert>
-          )}
+
         </>
       ) : (
         <p>Obteniendo ubicación...</p>

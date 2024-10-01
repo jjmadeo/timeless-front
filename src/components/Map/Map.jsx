@@ -5,6 +5,7 @@ const MapComponent = ({ location }) => {
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   useEffect(() => {
+    console.log(location);
     setSelectedPosition(location);
   }, [location]);
 
@@ -15,7 +16,7 @@ const MapComponent = ({ location }) => {
     >
       <GoogleMap
         mapContainerStyle={{ height: '400px', width: '100%' }}
-        center={selectedPosition || { lat: -34.603722, lng: -58.381592 }} 
+        center={selectedPosition} 
         zoom={14}
       >
         {selectedPosition && <Marker position={selectedPosition} />}
