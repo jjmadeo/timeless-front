@@ -1,101 +1,211 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, ListGroup, Button, Alert, Modal, Spinner, Card } from 'react-bootstrap';
-import MapComponent from '../components/Map/Map';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
+  Spinner,
+  Alert,
+  Card,
+  ListGroup,
+} from "react-bootstrap";
+import { Autocomplete, LoadScript } from "@react-google-maps/api";
+import DatePicker, { registerLocale } from "react-datepicker";
+import es from "date-fns/locale/es";
+registerLocale("es", es);
+import {
+  getStaticData,
+  getEmpresasByLocation,
+  getTurnosDisponibles,
+  postPreseleccionarTurno,
+} from "../helpers/fetch";
+import "react-datepicker/dist/react-datepicker.css";
 
-const mockCompanies = [
-  {
-    id: 1,
-    name: 'Empresa A',
-    location: { lat: -34.6911, lng: -58.5638 },
-    lines: [
-      { id: 1, name: 'Linea 1', schedule: { Monday: ['09:00 AM', '10:00 AM', '11:00 AM'], Tuesday: ['01:00 PM', '02:00 PM', '03:00 PM'], Wednesday: [], Thursday: ['09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM'], Friday: ['02:00 PM', '03:00 PM'], Saturday: ['09:00 AM', '10:00 AM'], Sunday: [] } },
-      { id: 2, name: 'Linea 2', schedule: { Monday: ['01:00 PM', '02:00 PM'], Tuesday: ['09:00 AM', '10:00 AM'], Wednesday: ['11:00 AM'], Thursday: ['02:00 PM', '03:00 PM'], Friday: ['09:00 AM', '10:00 AM'], Saturday: [], Sunday: [] } },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Empresa B',
-    location: { lat: -34.6711, lng: -58.5638 },
-    lines: [
-      { id: 1, name: 'Linea 1', schedule: { Monday: ['09:00 AM', '10:00 AM'], Tuesday: ['01:00 PM', '02:00 PM'], Wednesday: [], Thursday: ['09:00 AM', '10:00 AM'], Friday: ['02:00 PM', '03:00 PM'], Saturday: ['09:00 AM'], Sunday: [] } },
-    ],
-  },
-];
+const libraries = ["places"];
 
 const ReservarTurno = () => {
   const [location, setLocation] = useState(null);
   const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [selectedLine, setSelectedLine] = useState(null);
+  const [selectedRubro, setSelectedRubro] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
-  const [bookingDetails, setBookingDetails] = useState(null);
-  const [events, setEvents] = useState([]);
+  const [rubros, setRubros] = useState([]);
+  const [autocomplete, setAutocomplete] = useState(null);
+  const [address, setAddress] = useState("");
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedLine, setSelectedLine] = useState(null);
+  const [showNoResultsModal, setShowNoResultsModal] = useState(false);
   const [showNoTimesModal, setShowNoTimesModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [selectedHashid, setSelectedHashId] = useState("");
+  const [bookingDetails, setBookingDetails] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorTimes, setErrorTimes] = useState("");
 
+  // Cargar rubros al inicio
   useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        // Llamada a ipinfo.io con tu token
-        const response = await fetch('https://ipinfo.io/json?token=85e8e7ad2053f3');
-        const data = await response.json();
-        const [lat, lng] = data.loc.split(','); // 'loc' devuelve una cadena con latitud y longitud separada por comas
-        const currentLocation = {
-          lat: parseFloat(lat),
-          lng: parseFloat(lng),
-        };
-        console.log('Ubicación obtenida:', currentLocation);
-        setLocation(currentLocation);
-        fetchCompanies(parseFloat(lat), parseFloat(lng));
-      } catch (error) {
-        console.error('Error al obtener ubicación:', error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLocation();
+    fetchRubros();
   }, []);
 
-  const fetchCompanies = (lat, lng) => {
-    // Mock fetching companies based on location
-    setCompanies(mockCompanies);
-  };
-
-  const handleCompanySelected = (company) => {
-    setSelectedCompany(company);
-    setSelectedLine(null);
-    setSelectedDate(null);
-    setAvailableTimes([]);
-    setSelectedTime(null);
-    setLocation(company.location); 
-  };
-
-  const handleLineSelected = (line) => {
-    setSelectedLine(line);
-    setSelectedDate(null);
-    setAvailableTimes([]);
-    setSelectedTime(null);
-  };
-
-  const handleDateSelected = (date) => {
-    setSelectedDate(date);
-    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const times = selectedLine.schedule[dayOfWeek] || [];
-    if (times.length === 0) {
-      setShowNoTimesModal(true);
-    } else {
-      setAvailableTimes(times);
+  const fetchRubros = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getStaticData(token);
+      setRubros(res.rubro);
+    } catch (error) {
+      console.error("Error al obtener los rubros:", error);
     }
   };
 
-  const handleTimeSelected = (time) => {
+  const fetchTurnos = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getTurnosDisponibles(token);
+      console.log(res);
+      //setTurnosDisponibles(res);
+    } catch (error) {
+      console.error("Error al obtener los rubros:", error);
+    }
+  };
+
+  const handlePlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      setLocation({ lat, lng });
+      setAddress(place.formatted_address);
+    } else {
+      console.log("Autocomplete is not loaded yet!");
+    }
+  };
+
+  // Obtener empresas cercanas basadas en lat/lng y rubro
+  const fetchCompanies = async (lat, lng, rubro) => {
+    try {
+      setLoading(true); // Mostrar spinner
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getEmpresasByLocation(lat, lng, 6, rubro, token);
+      if (res.data.length === 0) {
+        setShowNoResultsModal(true);
+      } else {
+        setCompanies(res.data);
+      }
+    } catch (error) {
+      console.error("Error al obtener las empresas:", error);
+    } finally {
+      setLoading(false); // Ocultar spinner
+    }
+  };
+
+  const handleRubroChange = (e) => {
+    const selectedText = e.target.options[e.target.selectedIndex].text;
+    setSelectedRubro(selectedText);
+  };
+
+  const handleUseCurrentLocationChange = (e) => {
+    setUseCurrentLocation(e.target.checked);
+  };
+
+  const handleSearch = async () => {
+    if (!selectedRubro) {
+      console.error("Debes seleccionar un rubro antes de buscar.");
+      return;
+    }
+    if (!address && !useCurrentLocation) {
+      console.error("Debes ingresar una dirección o usar la ubicación actual.");
+      return;
+    }
+
+    if (useCurrentLocation && location) {
+      fetchCompanies(location.lat, location.lng, selectedRubro);
+    } else {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+            address
+          )}&key=AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc`
+        );
+        const data = await response.json();
+        if (data.results.length > 0) {
+          const { lat, lng } = data.results[0].geometry.location;
+          setLocation({ lat, lng });
+          fetchCompanies(lat, lng, selectedRubro);
+        } else {
+          console.error("No se encontraron resultados para la dirección.");
+        }
+      } catch (error) {
+        console.error("Error al obtener coordenadas:", error.message);
+      }
+    }
+  };
+
+  const handleCompanyChange = (e) => {
+    const selectedCompanyId = parseInt(e.target.value, 10);
+    const company = companies.find(
+      (company) => company.id === selectedCompanyId
+    );
+    setSelectedCompany(company);
+    setSelectedLine(null);
+  };
+
+  const handleLineChange = (e) => {
+    const selectedLineId = parseInt(e.target.value, 10);
+    const line = selectedCompany.lineas_atencion.find(
+      (line) => line.id === selectedLineId
+    );
+    setSelectedLine(line);
+  };
+
+  const handleDateSelected = async (date) => {
+    setSelectedDate(date);
+    setLoading(true);
+
+    if (selectedLine) {
+      try {
+        const token = JSON.parse(localStorage.getItem("token")).token;
+        const formattedDate = date.toISOString().split("T")[0]; // Formatear la fecha como 'YYYY-MM-DD'
+        const res = await getTurnosDisponibles(
+          selectedLine.id,
+          formattedDate,
+          token
+        );
+
+        if (res.data) {
+          if (res.data.length > 0) {
+            // Extraer los horarios desde el campo fecha_hora
+            const horariosDisponibles = res.data.map((turno) => {
+              const hora = new Date(turno.fecha_hora).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              return {
+                hora,
+                hashid: turno.hashid, // Incluir el hashid
+              };
+            });
+            setAvailableTimes(horariosDisponibles);
+          }
+        } else {
+          if (res.error.status == "BAD_REQUEST") {
+            setErrorTimes(res.error.title);
+            setShowNoTimesModal(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error al obtener turnos disponibles:", error);
+      }
+    }
+  };
+
+  const handleTimeSelected = (time, hashid) => {
     setSelectedTime(time);
+    setSelectedHashId(hashid);
   };
 
   const handleBookingConfirmed = () => {
@@ -105,13 +215,14 @@ const ReservarTurno = () => {
       date: selectedDate,
       time: selectedTime,
     };
-    // Mock confirming the booking
     setBookingDetails(details);
 
     const newEvent = {
       title: `Reserva en ${details.company.name} - ${details.line.name}`,
       start: new Date(details.date),
-      end: new Date(new Date(details.date).setMinutes(details.date.getMinutes() + 30)),
+      end: new Date(
+        new Date(details.date).setMinutes(details.date.getMinutes() + 30)
+      ),
       allDay: false,
     };
 
@@ -119,132 +230,231 @@ const ReservarTurno = () => {
     setShowConfirmModal(false);
   };
 
+  const handlePreseleccionarTurno = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      
+      // Preseleccionar turno con la API usando el selectedHashId
+      const response = await postPreseleccionarTurno(selectedHashid, token);
+  
+      if (response.success) {
+        // Si la preselección fue exitosa, mostrar el modal de confirmación
+        setShowConfirmModal(true);
+      } else {
+        console.error("Error al preseleccionar turno:", response.message);
+      }
+    } catch (error) {
+      console.error("Error al preseleccionar turno:", error.message);
+    }
+  };
+
+  // Obtener ubicación actual solo si se selecciona la opción "usar ubicación actual"
+  useEffect(() => {
+    if (useCurrentLocation) {
+      const fetchLocation = async () => {
+        try {
+          const response = await fetch(
+            "https://ipinfo.io/json?token=85e8e7ad2053f3"
+          );
+          const data = await response.json();
+          const [lat, lng] = data.loc.split(",");
+          const currentLocation = {
+            lat: parseFloat(lat),
+            lng: parseFloat(lng),
+          };
+          setLocation(currentLocation);
+        } catch (error) {
+          console.error("Error al obtener ubicación:", error.message);
+        }
+      };
+      fetchLocation();
+    }
+  }, [useCurrentLocation]);
+
   return (
     <Container fluid>
-      <h1 className="text-center my-4">Reserva tu Turno</h1>
-      {loading ? (
-        <div className="d-flex justify-content-center">
-          <Spinner animation="border" role="status">
-            <span className="sr-only">Cargando...</span>
-          </Spinner>
-        </div>
-      ) : location ? (
-        <>
+      <h1 className="text-center my-4">Solicita un nuevo turno</h1>
+      <hr />
+      <Row className="w-full">
+        <Col md={3} className="mb-4">
+          <Form.Group>
+            <Form.Label>Rubros</Form.Label>
+            <Form.Control as="select" onChange={handleRubroChange}>
+              <option value="">Selecciona un Rubro</option>
+              {rubros.map((rubro) => (
+                <option key={rubro.id} value={rubro.id}>
+                  {rubro.detalle}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        </Col>
 
-          <Row>
-            <Col md={12} className="mb-4">
-              <MapComponent location={location} />
-            </Col>
-          </Row>
-          {bookingDetails && (
-            <Alert variant="success" className="mt-3">
-              <h3>Reserva Confirmada</h3>
-              <p>Empresa: {bookingDetails.company.name}</p>
-              <p>Linea: {bookingDetails.line.name}</p>
-              <p>Fecha: {new Date(bookingDetails.date).toLocaleDateString()}</p>
-              <p>Hora: {bookingDetails.time}</p>
-            </Alert>
-          )}
-          <Row className="w-full">
-            <Col md={3} className="mb-4">
-              <Card>
-                <Card.Header as="h2">Empresas Cercanas</Card.Header>
-                <ListGroup variant="flush">
-                  {companies.map((company) => (
-                    <ListGroup.Item
-                      key={company.id}
-                      onClick={() => handleCompanySelected(company)}
-                      active={selectedCompany && selectedCompany.id === company.id}
-                      action
-                    >
-                      {company.name}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </Card>
-            </Col>
-            <Col md={3} className="mb-4">
-              {selectedCompany && (
-                <Card>
-                  <Card.Header as="h3">Selecciona una Linea de Atención</Card.Header>
-                  <ListGroup variant="flush">
-                    {selectedCompany.lines.map((line) => (
+        <Col md={6} className="mb-4">
+          <Form.Group>
+            <Form.Label>Dirección</Form.Label>
+            <LoadScript
+              googleMapsApiKey="AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc"
+              libraries={libraries}
+            >
+              <Autocomplete
+                onLoad={(autocomplete) => setAutocomplete(autocomplete)}
+                onPlaceChanged={handlePlaceChanged}
+              >
+                <Form.Control
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Escribe una dirección"
+                  disabled={useCurrentLocation}
+                />
+              </Autocomplete>
+            </LoadScript>
+          </Form.Group>
+        </Col>
+
+        <Col md={3} className="d-flex align-items-center">
+          <Form.Check
+            type="checkbox"
+            label="Usar ubicación actual"
+            checked={useCurrentLocation}
+            onChange={handleUseCurrentLocationChange}
+          />
+        </Col>
+
+        <Col md={12} className="text-center">
+          <Button variant="primary" onClick={handleSearch} disabled={loading}>
+            {loading ? <Spinner animation="border" size="sm" /> : "Buscar"}
+          </Button>
+        </Col>
+      </Row>
+      <hr />
+      {companies.length > 0 && (
+        <Col md={12} className="mb-4">
+          <Card>
+            <Card.Header as="h2">
+              Seleccionar Servicio, Fecha y Horario
+            </Card.Header>
+            <Card.Body>
+              <Row>
+                {/* Columna izquierda: Servicios y Líneas de Atención */}
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label>Servicio</Form.Label>
+                    <Form.Control as="select" onChange={handleCompanyChange}>
+                      <option value="">Selecciona un Servicio</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.datos_fiscales.nombre_fantasia}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+
+                  {selectedCompany && (
+                    <Form.Group className="mt-3">
+                      <Form.Label>Línea de Atención</Form.Label>
+                      <Form.Control as="select" onChange={handleLineChange}>
+                        <option value="">Selecciona una línea</option>
+                        {selectedCompany.lineas_atencion.map((line) => (
+                          <option key={line.id} value={line.id}>
+                            {line.descripcion}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Form.Group>
+                  )}
+                </Col>
+
+                <Col md={4} className="text-center">
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={handleDateSelected}
+                    inline
+                    locale="es"
+                  />
+                </Col>
+
+                <Col md={4}>
+                  <h5>Horarios Disponibles</h5>
+                  <ListGroup
+                    variant="flush"
+                    style={{ maxHeight: "200px", overflowY: "auto" }}
+                  >
+                    {availableTimes.map((turno) => (
                       <ListGroup.Item
-                        key={line.id}
-                        onClick={() => handleLineSelected(line)}
-                        active={selectedLine && selectedLine.id === line.id}
+                        key={turno.hora}
+                        onClick={() =>
+                          handleTimeSelected(turno.hora, turno.hashid)
+                        } // Pasar el hashid aquí
+                        active={selectedTime === turno.hora}
                         action
                       >
-                        {line.name}
+                        {turno.hora}
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
-                </Card>
-              )}
-            </Col>
-            <Col md={3} className="mb-4">
-              {selectedLine && (
-                <Card>
-                  <Card.Header as="h3">Selecciona una Fecha</Card.Header>
-                  <Card.Body>
-                    <DatePicker selected={selectedDate} onChange={handleDateSelected} inline />
-                  </Card.Body>
-                </Card>
-              )}
-            </Col>
-            <Col md={3} className="mb-4">
-              {selectedDate && availableTimes.length > 0 && (
-                <Card>
-                  <Card.Header as="h4">Horarios Disponibles</Card.Header>
-                  <ListGroup variant="flush">
-                    {availableTimes.map((time) => (
-                      <ListGroup.Item
-                        key={time}
-                        onClick={() => handleTimeSelected(time)}
-                        active={selectedTime === time}
-                        action
-                      >
-                        {time}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Card>
-              )}
-            </Col>
-          </Row>
-          <Row className="justify-content-center m-4">
-            {selectedTime && (
-              <div className="text-center">
-                <Button variant="secondary" onClick={() => setShowConfirmModal(true)} className="mt-3">
-                  Seleccionar Turno
-                </Button>
-              </div>
-            )}
-          </Row>
-
-
-        </>
-      ) : (
-        <p>Obteniendo ubicación...</p>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
       )}
 
-      <Modal show={showNoTimesModal} onHide={() => setShowNoTimesModal(false)}>
+      {selectedTime && (
+        <div className="text-center">
+          <Button
+            variant="secondary"
+            onClick={handlePreseleccionarTurno}
+            className="mt-3"
+          >
+            Seleccionar Turno
+          </Button>
+        </div>
+      )}
+
+      <Modal
+        show={showNoResultsModal}
+        onHide={() => setShowNoResultsModal(false)}
+      >
         <Modal.Header closeButton>
-          <Modal.Title>Sin Horarios Disponibles</Modal.Title>
+          <Modal.Title>No se encontraron servicios cercanos</Modal.Title>
         </Modal.Header>
-        <Modal.Body>No hay horarios disponibles para la fecha seleccionada.</Modal.Body>
+        <Modal.Body>
+          No se encontraron empresas cercanas a la dirección seleccionada.
+          Intenta con otra ubicación o rubro.
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowNoTimesModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowNoResultsModal(false)}
+          >
             Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
-
+      <Modal show={showNoTimesModal} onHide={() => setShowNoTimesModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Sin Horarios Disponibles</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorTimes}</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowNoTimesModal(false)}
+          >
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Turno</Modal.Title>
         </Modal.Header>
-        <Modal.Body>¿Desea confirmar su turno?</Modal.Body>
+        <Modal.Body>
+          Tiene 2 minutos para confirmar el turno <br></br>¿Desea confirmar su
+          turno?
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => setShowConfirmModal(false)}>
             Cancelar

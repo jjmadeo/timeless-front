@@ -27,6 +27,35 @@ export const postRequest = async (endpoint, data, token = null) => {
   return response.json();
 };
 
+export const postRequestWithParams = async (endpoint, data, token = null) => {
+  console.log('API Base URL:', environment.base);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Construir los parámetros de la URL a partir de los datos
+  const params = new URLSearchParams(data).toString();
+  const url = `${environment.base + endpoint}/${params}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+  });
+
+  // Verifica si la respuesta es correcta
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`${errorData.error.title}`);
+  }
+
+  return response.json();
+};
+
 export const putRequest = async (endpoint, data, token = null) => {
   console.log('API Base URL:', environment.base);
   const headers = {
@@ -166,3 +195,43 @@ export const actualizarPerfil = async (id, profile, token) => {
   }
 };
 
+export const getStaticData = async (token) => {
+  try {
+    const response = await getRequest('staticData', token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los rubros:', error);
+    throw error;
+  }
+};
+
+export const getEmpresasByLocation = async (lon, lat, distance = 6, rubro, token) => {
+  try {
+    const response = await getRequest(`empresasByLocation?lon=${lon}&lat=${lat}&distance=${distance}&rubro=${rubro}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener las empresas:', error);
+    throw error;
+  }
+};
+
+
+export const getTurnosDisponibles = async (id, fecha, token) => {
+  try {
+    const response = await getRequest(`VisualizarTurnosDisponibles/${id}?fecha=${fecha}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los turnos:', error);
+    throw error;
+  }
+};
+
+export const postPreseleccionarTurno = async (payload, token) => {
+  try {
+    const response = await postRequestWithParams('preselccionarTurno', payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
