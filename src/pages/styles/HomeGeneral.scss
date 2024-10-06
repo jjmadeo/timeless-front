@@ -1,0 +1,29 @@
+@import '../../styles/style.scss';
+
+.shadow {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.scrollable-div-futuros {
+    max-height: 400px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+    border: 1px solid #ccc; /* Opcional: un borde para visualizar el div */
+    padding: 10px; /* Opcional: espacio interno */
+}
+
+.scrollable-div-hoy {
+    max-height: 850px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+    border: 1px solid #ccc; /* Opcional: un borde para visualizar el div */
+    padding: 10px; /* Opcional: espacio interno */
+}
+
+.scrollable-div-historico {
+    max-height: 850px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+    border: 1px solid #ccc; /* Opcional: un borde para visualizar el div */
+    padding: 10px; /* Opcional: espacio interno */
+}
+
