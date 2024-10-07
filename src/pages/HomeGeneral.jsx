@@ -1,33 +1,59 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Toast, ToastContainer } from "react-bootstrap";
+import {
+    Toast,
+    ToastContainer,
+    Card,
+    Button,
+    Container,
+    Row,
+    Col,
+    Modal,
+} from "react-bootstrap";
 import "./styles/HomeGeneral.scss";
 import { getTurnosByUser } from "../helpers/fetch";
 import { useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import MapComponent from "../components/Map/Map";
 
-const AppointmentCard = ({ appointment, color, data }) => {
+const AppointmentCard = ({ appointment, color, data, onViewMap }) => {
+    const formattedDate = format(new Date(appointment.fecha_hora), "EEEE dd 'de' MMMM", { locale: es });
+    const formattedTime = format(new Date(appointment.fecha_hora), "HH'hs'", { locale: es });
+
     return (
-        <div className={`card mb-3 shadow`} style={{ backgroundColor: color }}>
-            <div className="card-body">
-                <h5 className="card-title">
-                    {appointment.fecha_hora.replace("T", " ")}
-                </h5>
-                <p className="card-text">
-                    {appointment.rubro.detalle} - {appointment.nombre_empresa}
-                </p>
-                <p className="card-text">{appointment.direccion}</p>
-
-                {/* Mostrar botones sólo si data.pasado es null */}
-                {data.pasado === null && (
-                    <div className="d-flex justify-content-between">
-                        <button className="btn btn-secondary btn-sm">Cancelar turno</button>
-                        <button className="btn btn-secondary btn-sm">Ver mapa</button>
+        <Card className="mb-3 shadow" style={{ backgroundColor: color }}>
+            <Card.Body>
+                <div className="d-flex justify-content-between">
+                    <div>
+                        <Card.Text>{formattedDate}</Card.Text>
+                        <Card.Text>{formattedTime}</Card.Text>
+                        <Card.Text>{appointment.rubro.detalle}</Card.Text>
                     </div>
-                )}
-            </div>
-        </div>
+                    <div>
+                        <Card.Title>{appointment.nombre_empresa}</Card.Title>
+                        <Card.Text>{appointment.direccion}</Card.Text>
+                    </div>
+                </div>
+                <div className="d-flex justify-content-between mt-2">
+                    <Button
+                        variant="danger"
+                        size="sm"
+                        className="mr-2"
+                        style={{ visibility: data.pasado === null ? 'visible' : 'hidden' }}
+                    >
+                        Cancelar turno
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => onViewMap(appointment.cordenadas)}
+                    >
+                        Ver mapa
+                    </Button>
+                </div>
+            </Card.Body>
+        </Card>
     );
 };
 
@@ -36,6 +62,8 @@ const HomeGeneral = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastType, setToastType] = useState("success");
+    const [showMapModal, setShowMapModal] = useState(false);
+    const [selectedCoordinates, setSelectedCoordinates] = useState(null);
     const location = useLocation();
 
     const fetchGetTurnos = async () => {
@@ -55,18 +83,30 @@ const HomeGeneral = () => {
     useEffect(() => {
         if (location.state && location.state.message) {
             const { mensaje, direccion, fecha_hora } = location.state.message;
-            const fechaFormateada = format(new Date(fecha_hora), "EEEE d 'de' MMMM yyyy 'a las' HH:mm'hs'", { locale: es });
+            const fechaFormateada = format(
+                new Date(fecha_hora),
+                "EEEE d 'de' MMMM yyyy 'a las' HH:mm'hs'",
+                { locale: es }
+            );
             setToastMessage(`${mensaje}<br />${fechaFormateada}<br />${direccion}`);
             setToastType(location.state.type || "success");
             setShowToast(true);
         }
     }, [location.state]);
 
+    const handleViewMap = (coordinates) => {
+        setSelectedCoordinates({
+            lat: parseFloat(coordinates.latitud),
+            lng: parseFloat(coordinates.longitud),
+        });
+        setShowMapModal(true);
+    };
+
     return (
-        <div className="container mt-5">
-            <div className="row">
-                <div className="col-md ">
-                    <h2>Hoy</h2>
+        <Container className="mt-5">
+            <Row className="justify-content-center">
+                <Col md={8} className="mb-2">
+                    <h2 className="mb-2">Hoy</h2>
                     <div className="scrollable-div-hoy turnoContainer">
                         {data.hoy.length === 0 ? (
                             <p>No hay turnos hoy.</p>
@@ -76,17 +116,18 @@ const HomeGeneral = () => {
                                     key={appointment.id}
                                     appointment={appointment}
                                     color="#3B6C5B"
-                                    data={data}
+                                    data={{ pasado: null }}
+                                    onViewMap={handleViewMap}
                                 />
                             ))
                         )}
                     </div>
-                </div>
-            </div>
+                </Col>
+            </Row>
 
-            <div className="row">
-                <div className="col-md-5 ">
-                    <h2>Próximos</h2>
+            <Row>
+                <Col md={7}>
+                    <h2 className="mb-4">Próximos</h2>
                     <div className="scrollable-div-futuros turnoContainer">
                         {data.futuros.length === 0 ? (
                             <p>No hay turnos próximos.</p>
@@ -96,15 +137,16 @@ const HomeGeneral = () => {
                                     key={appointment.id}
                                     appointment={appointment}
                                     color="#73633A"
-                                    data={data}
+                                    data={{ pasado: null }}
+                                    onViewMap={handleViewMap}
                                 />
                             ))
                         )}
                     </div>
-                </div>
+                </Col>
 
-                <div className="col-md-7 ">
-                    <h2>Turnos históricos</h2>
+                <Col md={5}>
+                    <h2 className="mb-4">Turnos históricos</h2>
                     <div className="scrollable-div-historico turnoContainer">
                         {data.pasados.length === 0 ? (
                             <p>No hay turnos pasados.</p>
@@ -114,13 +156,14 @@ const HomeGeneral = () => {
                                     key={appointment.id}
                                     appointment={appointment}
                                     color="#C25959"
-                                    data={data}
+                                    data={{ pasado: true }}
+                                    onViewMap={handleViewMap}
                                 />
                             ))
                         )}
                     </div>
-                </div>
-            </div>
+                </Col>
+            </Row>
 
             <ToastContainer position="bottom-end" className="p-3">
                 <Toast
@@ -133,7 +176,29 @@ const HomeGeneral = () => {
                     <Toast.Body dangerouslySetInnerHTML={{ __html: toastMessage }} />
                 </Toast>
             </ToastContainer>
-        </div>
+
+            <Modal
+                show={showMapModal}
+                onHide={() => setShowMapModal(false)}
+                className="custom-map-modal"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Ubicación del servicio</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedCoordinates ? (
+                        <MapComponent location={selectedCoordinates} />
+                    ) : (
+                        <p>No hay información disponible sobre la ubicación.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowMapModal(false)}>
+                        Cerrar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </Container>
     );
 };
 

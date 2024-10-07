@@ -34,7 +34,7 @@ const NavigationBar = () => {
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
 
   return (
-    <Navbar bg="primary" variant="dark" expand="md">
+    <Navbar bg="primary"  expand="md">
       <Container>
         <Navbar.Brand as={Link} to="/landingPage">
           <img src={logo} alt="Logo" width="30" height="50" className="d-inline-block me-3" />{' '}timeless

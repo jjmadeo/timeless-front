@@ -1,3 +1,5 @@
+@import '../../styles/style.scss';
+
 .available-day {
     background-color: #b0e57c; /* Verde claro */
     color: black;
@@ -33,3 +35,39 @@
       border-top: 1px solid #dee2e6;
     }
   }
+
+  .card-servicios {
+    background-color: $light-gray;
+  }
+
+  .select {
+    background-color: white !important;
+  }
+
+
+  /* CustomDatePicker.scss */
+.custom-datepicker {
+  .react-datepicker {
+    font-size: 0.8rem; /* Tamaño de fuente más pequeño */
+  }
+
+  .react-datepicker__header {
+    background-color: #343a40; /* Color de fondo del encabezado */
+    border-bottom: 1px solid #6c757d; /* Borde inferior */
+  }
+
+  .react-datepicker__current-month,
+  .react-datepicker__day-name {
+    color: #ffffff; /* Color del texto del mes actual y nombres de los días */
+  }
+
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    background-color: #6c757d; /* Color de fondo del día seleccionado */
+    color: #ffffff; /* Color del texto del día seleccionado */
+  }
+
+  .react-datepicker__day--today {
+    border-color: #6c757d; /* Borde del día actual */
+  }
+}

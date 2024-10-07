@@ -11,7 +11,7 @@
   .navbar-dark .navbar-nav .nav-link {
     font-weight: bold;  // Aplica negrita a todos los enlaces
     font-size: 0.9rem;
-    color: $dark-gray !important;
+    color: black !important;
   }
   
   .navbar-dark .navbar-brand {
@@ -23,7 +23,7 @@
 .navbar-text{
   font-weight: bold;  // Aplica negrita a todos los enlaces
   font-size: 0.9rem;
-  color: $dark-gray !important;
+  color: black !important;
 }
 
   .navbar-dark .navbar-nav .nav-link:hover {
@@ -34,7 +34,7 @@
 
     font-weight: bold !important;
     font-size: 0.9rem !important;
-    color: $dark-gray !important;
+    color: black !important;
     background-color: $light-gray !important;
     border-color: $light-gray !important;
   }
@@ -42,7 +42,7 @@
   .btn-secondary{
     font-weight: bold !important;
     font-size: 0.9rem !important;
-    color: $dark-gray !important;
+    color: black !important;
     background-color: $secondary-green !important;
     border-color: $secondary-green !important;
   }

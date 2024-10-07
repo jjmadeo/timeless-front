@@ -116,11 +116,13 @@ const ReservarTurno = () => {
     if (!selectedRubro) {
       setToastMessage("Debes seleccionar un rubro antes de buscar.");
       setShowToast(true);
-      
+
       return;
     }
     if (!address && !useCurrentLocation) {
-      setToastMessage("Debes ingresar una dirección o usar la ubicación actual.");
+      setToastMessage(
+        "Debes ingresar una dirección o usar la ubicación actual."
+      );
       setShowToast(true);
       return;
     }
@@ -292,7 +294,11 @@ const ReservarTurno = () => {
         <Col md={3} className="mb-4">
           <Form.Group>
             <Form.Label>Rubros</Form.Label>
-            <Form.Control as="select" onChange={handleRubroChange}>
+            <Form.Control
+              className="select"
+              as="select"
+              onChange={handleRubroChange}
+            >
               <option value="">Selecciona un Rubro</option>
               {rubros.map((rubro) => (
                 <option key={rubro.id} value={rubro.id}>
@@ -315,6 +321,7 @@ const ReservarTurno = () => {
                 onPlaceChanged={handlePlaceChanged}
               >
                 <Form.Control
+                  className="select"
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -336,7 +343,7 @@ const ReservarTurno = () => {
         </Col>
 
         <Col md={12} className="text-center">
-          <Button variant="primary" onClick={handleSearch} disabled={loading}>
+          <Button variant="secondary" onClick={handleSearch} disabled={loading}>
             {loading ? <Spinner animation="border" size="sm" /> : "Buscar"}
           </Button>
         </Col>
@@ -345,17 +352,18 @@ const ReservarTurno = () => {
       {companies.length > 0 && (
         <Col md={12} className="mb-4">
           <Card>
-            <Card.Header as="h2">
-              Seleccionar Servicio, Fecha y Horario
-            </Card.Header>
-            <Card.Body>
+            <Card.Body className="card-servicios">
               <Row>
                 {/* Columna izquierda: Servicios y Líneas de Atención */}
-                <Col md={4}>
+                <Col md={12} lg={5} className="mb-4">
                   <Form.Group>
                     <Form.Label>Servicio</Form.Label>
                     <div className="d-flex">
-                      <Form.Control as="select" onChange={handleCompanyChange}>
+                      <Form.Control
+                        className="select me-1"
+                        as="select"
+                        onChange={handleCompanyChange}
+                      >
                         <option value="">Selecciona un Servicio</option>
                         {companies.map((company) => (
                           <option key={company.id} value={company.id}>
@@ -365,11 +373,11 @@ const ReservarTurno = () => {
                       </Form.Control>
                       {selectedCompany && (
                         <Button
-                          variant="outline-secondary"
-                          className="ml-2"
+                          variant="secondary"
+                          className="w-50 p-0"
                           onClick={() => setShowMapModal(true)}
                         >
-                          <FaSearch />
+                          Ver Mapa
                         </Button>
                       )}
                     </div>
@@ -378,7 +386,11 @@ const ReservarTurno = () => {
                   {selectedCompany && (
                     <Form.Group className="mt-3">
                       <Form.Label>Línea de Atención</Form.Label>
-                      <Form.Control as="select" onChange={handleLineChange}>
+                      <Form.Control
+                        className="select"
+                        as="select"
+                        onChange={handleLineChange}
+                      >
                         <option value="">Selecciona una línea</option>
                         {selectedCompany.lineas_atencion.map((line) => (
                           <option key={line.id} value={line.id}>
@@ -390,7 +402,7 @@ const ReservarTurno = () => {
                   )}
                 </Col>
 
-                <Col md={4} className="text-center">
+                <Col md={12} lg={4} className="text-center mb-4">
                   <DatePicker
                     selected={selectedDate}
                     onChange={handleDateSelected}
@@ -400,7 +412,7 @@ const ReservarTurno = () => {
                   />
                 </Col>
 
-                <Col md={4}>
+                <Col md={12} lg={3}>
                   <h5>Horarios Disponibles</h5>
                   <ListGroup
                     variant="flush"
@@ -421,21 +433,20 @@ const ReservarTurno = () => {
                   </ListGroup>
                 </Col>
               </Row>
+              {selectedTime && (
+                <div className="text-right">
+                  <Button
+                    variant="secondary"
+                    onClick={handlePreseleccionarTurno}
+                    
+                  >
+                    Seleccionar Turno
+                  </Button>
+                </div>
+              )}
             </Card.Body>
           </Card>
         </Col>
-      )}
-
-      {selectedTime && (
-        <div className="text-center">
-          <Button
-            variant="secondary"
-            onClick={handlePreseleccionarTurno}
-            className="mt-3"
-          >
-            Seleccionar Turno
-          </Button>
-        </div>
       )}
 
       <Modal
@@ -446,7 +457,7 @@ const ReservarTurno = () => {
           <Modal.Title>No se encontraron servicios cercanos</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          No se encontraron empresas cercanas a la dirección seleccionada.
+          No se encontraron servicios cercanos a la dirección seleccionada.
           Intenta con otra ubicación o rubro.
         </Modal.Body>
         <Modal.Footer>
@@ -508,7 +519,7 @@ const ReservarTurno = () => {
         className="custom-map-modal"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Ubicación de la Empresa</Modal.Title>
+          <Modal.Title>Ubicación del servicio</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedCompany &&
