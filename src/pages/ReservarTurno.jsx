@@ -46,8 +46,6 @@ const ReservarTurno = () => {
   const [showNoTimesModal, setShowNoTimesModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedHashid, setSelectedHashId] = useState("");
-  const [bookingDetails, setBookingDetails] = useState(null);
-  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorTimes, setErrorTimes] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -162,7 +160,6 @@ const ReservarTurno = () => {
 
   const handleDateSelected = async (date) => {
     setSelectedDate(date);
-    setLoading(true);
 
     if (selectedLine) {
       try {
@@ -267,6 +264,16 @@ const ReservarTurno = () => {
       fetchLocation();
     }
   }, [useCurrentLocation]);
+
+  const resetForm = () => {
+    setSelectedDate(null);
+    setAvailableTimes([]);
+    setSelectedTime(null);
+    setSelectedHashId("");
+    setLoading(false);
+    setErrorTimes("");
+    setError(false);
+  };
 
   return (
     <Container fluid>
@@ -458,6 +465,7 @@ const ReservarTurno = () => {
             setError(true);
             setToastMessage("No ha sido confirmado el turno");
             setShowToast(true);
+            resetForm();
           }}>
             Cancelar
           </Button>
