@@ -22,7 +22,7 @@ const AppointmentCard = ({ appointment, color, data, onViewMap }) => {
     const formattedTime = format(new Date(appointment.fecha_hora), "HH'hs'", { locale: es });
 
     return (
-        <Card className="mb-3 shadow" style={{ backgroundColor: color }}>
+        <Card className="mb-3 shadow card-usuario" style={{ backgroundColor: color }}>
             <Card.Body>
                 <div className="d-flex justify-content-between">
                     <div>
