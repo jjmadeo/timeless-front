@@ -38,9 +38,11 @@ export const postRequestWithParams = async (endpoint, data, token = null) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Construir los parámetros de la URL a partir de los datos
   const params = new URLSearchParams(data).toString();
-  const url = `${environment.base + endpoint}/${params}`;
+
+  const cleanedParams = params.replace(/=+$/, '');
+  
+  const url = `${environment.base + endpoint}/${cleanedParams}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -228,7 +230,19 @@ export const getTurnosDisponibles = async (id, fecha, token) => {
 
 export const postPreseleccionarTurno = async (payload, token) => {
   try {
+    
     const response = await postRequestWithParams('preselccionarTurno', payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
+
+export const postConfirmarTurno = async (payload, token) => {
+  try {
+    
+    const response = await postRequestWithParams('ConfirmarTurno', payload, token);
     return response;
   } catch (error) {
     console.error('Error al registrar:', error);

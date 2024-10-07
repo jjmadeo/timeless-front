@@ -10,6 +10,8 @@ import {
   Alert,
   Card,
   ListGroup,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 import { Autocomplete, LoadScript } from "@react-google-maps/api";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -20,7 +22,9 @@ import {
   getEmpresasByLocation,
   getTurnosDisponibles,
   postPreseleccionarTurno,
+  postConfirmarTurno,
 } from "../helpers/fetch";
+import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 
 const libraries = ["places"];
@@ -46,6 +50,11 @@ const ReservarTurno = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorTimes, setErrorTimes] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [error, setError] = useState(false);
+
+  const navigate = useNavigate();
 
   // Cargar rubros al inicio
   useEffect(() => {
@@ -57,17 +66,6 @@ const ReservarTurno = () => {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const res = await getStaticData(token);
       setRubros(res.rubro);
-    } catch (error) {
-      console.error("Error al obtener los rubros:", error);
-    }
-  };
-
-  const fetchTurnos = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem("token")).token;
-      const res = await getTurnosDisponibles(token);
-      console.log(res);
-      //setTurnosDisponibles(res);
     } catch (error) {
       console.error("Error al obtener los rubros:", error);
     }
@@ -208,28 +206,6 @@ const ReservarTurno = () => {
     setSelectedHashId(hashid);
   };
 
-  const handleBookingConfirmed = () => {
-    const details = {
-      company: selectedCompany,
-      line: selectedLine,
-      date: selectedDate,
-      time: selectedTime,
-    };
-    setBookingDetails(details);
-
-    const newEvent = {
-      title: `Reserva en ${details.company.name} - ${details.line.name}`,
-      start: new Date(details.date),
-      end: new Date(
-        new Date(details.date).setMinutes(details.date.getMinutes() + 30)
-      ),
-      allDay: false,
-    };
-
-    setEvents([...events, newEvent]);
-    setShowConfirmModal(false);
-  };
-
   const handlePreseleccionarTurno = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
@@ -237,8 +213,9 @@ const ReservarTurno = () => {
       // Preseleccionar turno con la API usando el selectedHashId
       const response = await postPreseleccionarTurno(selectedHashid, token);
   
-      if (response.success) {
-        // Si la preselección fue exitosa, mostrar el modal de confirmación
+      console.log("Response:", response.error);
+      if (response.error == null) {
+
         setShowConfirmModal(true);
       } else {
         console.error("Error al preseleccionar turno:", response.message);
@@ -247,6 +224,26 @@ const ReservarTurno = () => {
       console.error("Error al preseleccionar turno:", error.message);
     }
   };
+
+  const handleConfirmarTurno = async () => {
+
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+
+      // Confirmar turno con la API usando el selectedHashId
+      const response = await postConfirmarTurno(selectedHashid, token);
+
+      if (response.error == null) {
+        console.log("Turno confirmado:", response.message);
+        navigate("/HomeGeneral", { state: { message: response.message } });
+      } else {
+        console.error("Error al confirmar turno:", response.message);
+      }
+    } catch (error) {
+      console.error("Error al confirmar turno:", error.message);
+    }
+
+  }
 
   // Obtener ubicación actual solo si se selecciona la opción "usar ubicación actual"
   useEffect(() => {
@@ -456,18 +453,34 @@ const ReservarTurno = () => {
           turno?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => setShowConfirmModal(false)}>
+          <Button variant="primary" onClick={() => {
+            setShowConfirmModal(false);
+            setError(true);
+            setToastMessage("No ha sido confirmado el turno");
+            setShowToast(true);
+          }}>
             Cancelar
           </Button>
           <Button
             variant="secondary"
-            onClick={handleBookingConfirmed}
+            onClick={handleConfirmarTurno}
             disabled={!selectedDate || !selectedTime}
           >
             Confirmar
           </Button>
         </Modal.Footer>
       </Modal>
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          bg={error ? "danger" : "success"}
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
   );
 };
