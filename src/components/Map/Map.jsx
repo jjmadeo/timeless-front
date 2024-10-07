@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, MarkerF} from '@react-google-maps/api';
+import { GoogleMap, LoadScriptNext, MarkerF} from '@react-google-maps/api';
 
 const MapComponent = ({ location }) => {
   const [selectedPosition, setSelectedPosition] = useState(null);
@@ -10,7 +10,7 @@ const MapComponent = ({ location }) => {
   }, [location]);
 
   return (
-    <LoadScript
+    <LoadScriptNext
       googleMapsApiKey="AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc" 
       libraries={['places']}
     >
@@ -22,7 +22,7 @@ const MapComponent = ({ location }) => {
         {selectedPosition && <MarkerF position={selectedPosition} />}
 
       </GoogleMap>
-    </LoadScript>
+    </LoadScriptNext>
   );
 };
 

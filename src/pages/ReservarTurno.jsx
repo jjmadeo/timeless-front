@@ -26,6 +26,9 @@ import {
 } from "../helpers/fetch";
 import { useLocation, useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
+import MapComponent from "../components/Map/Map";
+import { FaSearch } from "react-icons/fa";
+import "./styles/ReservarTurnos.scss";
 
 const libraries = ["places"];
 
@@ -51,6 +54,7 @@ const ReservarTurno = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -74,7 +78,7 @@ const ReservarTurno = () => {
       const place = autocomplete.getPlace();
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
-      setLocation({ lat, lng });
+      setLocation({ lng, lat });
       setAddress(place.formatted_address);
     } else {
       console.log("Autocomplete is not loaded yet!");
@@ -82,11 +86,11 @@ const ReservarTurno = () => {
   };
 
   // Obtener empresas cercanas basadas en lat/lng y rubro
-  const fetchCompanies = async (lat, lng, rubro) => {
+  const fetchCompanies = async (lng, lat, rubro) => {
     try {
       setLoading(true); // Mostrar spinner
       const token = JSON.parse(localStorage.getItem("token")).token;
-      const res = await getEmpresasByLocation(lat, lng, 6, rubro, token);
+      const res = await getEmpresasByLocation(lng, lat, 6, rubro, token);
       if (res.data.length === 0) {
         setShowNoResultsModal(true);
       } else {
@@ -110,16 +114,19 @@ const ReservarTurno = () => {
 
   const handleSearch = async () => {
     if (!selectedRubro) {
-      console.error("Debes seleccionar un rubro antes de buscar.");
+      setToastMessage("Debes seleccionar un rubro antes de buscar.");
+      setShowToast(true);
+      
       return;
     }
     if (!address && !useCurrentLocation) {
-      console.error("Debes ingresar una dirección o usar la ubicación actual.");
+      setToastMessage("Debes ingresar una dirección o usar la ubicación actual.");
+      setShowToast(true);
       return;
     }
 
     if (useCurrentLocation && location) {
-      fetchCompanies(location.lat, location.lng, selectedRubro);
+      fetchCompanies(location.lng, location.lat, selectedRubro);
     } else {
       try {
         const response = await fetch(
@@ -129,9 +136,9 @@ const ReservarTurno = () => {
         );
         const data = await response.json();
         if (data.results.length > 0) {
-          const { lat, lng } = data.results[0].geometry.location;
-          setLocation({ lat, lng });
-          fetchCompanies(lat, lng, selectedRubro);
+          const { lng, lat } = data.results[0].geometry.location;
+          setLocation({ lng, lat });
+          fetchCompanies(lng, lat, selectedRubro);
         } else {
           console.error("No se encontraron resultados para la dirección.");
         }
@@ -233,7 +240,9 @@ const ReservarTurno = () => {
 
       if (response.error == null) {
         console.log("Turno confirmado:", response);
-        navigate("/HomeGeneral", { state: { message: response, type: "success" } });
+        navigate("/HomeGeneral", {
+          state: { message: response, type: "success" },
+        });
       } else {
         console.error("Error al confirmar turno:", response.message);
       }
@@ -251,10 +260,10 @@ const ReservarTurno = () => {
             "https://ipinfo.io/json?token=85e8e7ad2053f3"
           );
           const data = await response.json();
-          const [lat, lng] = data.loc.split(",");
+          const [lng, lat] = data.loc.split(",");
           const currentLocation = {
-            lat: parseFloat(lat),
             lng: parseFloat(lng),
+            lat: parseFloat(lat),
           };
           setLocation(currentLocation);
         } catch (error) {
@@ -345,14 +354,25 @@ const ReservarTurno = () => {
                 <Col md={4}>
                   <Form.Group>
                     <Form.Label>Servicio</Form.Label>
-                    <Form.Control as="select" onChange={handleCompanyChange}>
-                      <option value="">Selecciona un Servicio</option>
-                      {companies.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.datos_fiscales.nombre_fantasia}
-                        </option>
-                      ))}
-                    </Form.Control>
+                    <div className="d-flex">
+                      <Form.Control as="select" onChange={handleCompanyChange}>
+                        <option value="">Selecciona un Servicio</option>
+                        {companies.map((company) => (
+                          <option key={company.id} value={company.id}>
+                            {company.datos_fiscales.nombre_fantasia}
+                          </option>
+                        ))}
+                      </Form.Control>
+                      {selectedCompany && (
+                        <Button
+                          variant="outline-secondary"
+                          className="ml-2"
+                          onClick={() => setShowMapModal(true)}
+                        >
+                          <FaSearch />
+                        </Button>
+                      )}
+                    </div>
                   </Form.Group>
 
                   {selectedCompany && (
@@ -479,6 +499,34 @@ const ReservarTurno = () => {
             disabled={!selectedDate || !selectedTime}
           >
             Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={showMapModal}
+        onHide={() => setShowMapModal(false)}
+        className="custom-map-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Ubicación de la Empresa</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedCompany &&
+          selectedCompany.datos_fiscales &&
+          selectedCompany.datos_fiscales.domicilio_fiscal ? (
+            <MapComponent
+              location={{
+                lat: selectedCompany.datos_fiscales.domicilio_fiscal.latitud,
+                lng: selectedCompany.datos_fiscales.domicilio_fiscal.longitud,
+              }}
+            />
+          ) : (
+            <p>No hay información disponible sobre la ubicación.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMapModal(false)}>
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
