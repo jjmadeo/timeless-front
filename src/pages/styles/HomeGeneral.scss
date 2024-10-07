@@ -1,0 +1,30 @@
+@import '../../styles/style.scss';
+
+.shadow {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.scrollable-div-futuros {
+    max-height: 525px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+
+}
+
+.scrollable-div-hoy {
+    max-height: 300px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+   
+}
+
+.scrollable-div-historico {
+    max-height: 525px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+}
+
+.turnoContainer{
+
+    padding: 5px;
+
+}

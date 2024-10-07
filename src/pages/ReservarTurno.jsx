@@ -13,7 +13,7 @@ import {
   Toast,
   ToastContainer,
 } from "react-bootstrap";
-import { Autocomplete, LoadScript } from "@react-google-maps/api";
+import { Autocomplete, LoadScriptNext } from "@react-google-maps/api";
 import DatePicker, { registerLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
 registerLocale("es", es);
@@ -24,7 +24,7 @@ import {
   postPreseleccionarTurno,
   postConfirmarTurno,
 } from "../helpers/fetch";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 
 const libraries = ["places"];
@@ -174,16 +174,19 @@ const ReservarTurno = () => {
         if (res.data) {
           if (res.data.length > 0) {
             // Extraer los horarios desde el campo fecha_hora
-            const horariosDisponibles = res.data.map((turno) => {
-              const hora = new Date(turno.fecha_hora).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
+            const now = new Date();
+            const horariosDisponibles = res.data
+              .filter((turno) => new Date(turno.fecha_hora) > now) // Filtrar horarios pasados
+              .map((turno) => {
+                const hora = new Date(turno.fecha_hora).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+                return {
+                  hora,
+                  hashid: turno.hashid, // Incluir el hashid
+                };
               });
-              return {
-                hora,
-                hashid: turno.hashid, // Incluir el hashid
-              };
-            });
             setAvailableTimes(horariosDisponibles);
           }
         } else {
@@ -206,13 +209,12 @@ const ReservarTurno = () => {
   const handlePreseleccionarTurno = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
-      
+
       // Preseleccionar turno con la API usando el selectedHashId
       const response = await postPreseleccionarTurno(selectedHashid, token);
-  
+
       console.log("Response:", response.error);
       if (response.error == null) {
-
         setShowConfirmModal(true);
       } else {
         console.error("Error al preseleccionar turno:", response.message);
@@ -223,7 +225,6 @@ const ReservarTurno = () => {
   };
 
   const handleConfirmarTurno = async () => {
-
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
 
@@ -231,16 +232,15 @@ const ReservarTurno = () => {
       const response = await postConfirmarTurno(selectedHashid, token);
 
       if (response.error == null) {
-        console.log("Turno confirmado:", response.message);
-        navigate("/HomeGeneral", { state: { message: response.message } });
+        console.log("Turno confirmado:", response);
+        navigate("/HomeGeneral", { state: { message: response, type: "success" } });
       } else {
         console.error("Error al confirmar turno:", response.message);
       }
     } catch (error) {
       console.error("Error al confirmar turno:", error.message);
     }
-
-  }
+  };
 
   // Obtener ubicación actual solo si se selecciona la opción "usar ubicación actual"
   useEffect(() => {
@@ -297,7 +297,7 @@ const ReservarTurno = () => {
         <Col md={6} className="mb-4">
           <Form.Group>
             <Form.Label>Dirección</Form.Label>
-            <LoadScript
+            <LoadScriptNext
               googleMapsApiKey="AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc"
               libraries={libraries}
             >
@@ -313,7 +313,7 @@ const ReservarTurno = () => {
                   disabled={useCurrentLocation}
                 />
               </Autocomplete>
-            </LoadScript>
+            </LoadScriptNext>
           </Form.Group>
         </Col>
 
@@ -376,6 +376,7 @@ const ReservarTurno = () => {
                     onChange={handleDateSelected}
                     inline
                     locale="es"
+                    minDate={new Date()} // Deshabilitar fechas anteriores al día actual
                   />
                 </Col>
 
@@ -460,13 +461,16 @@ const ReservarTurno = () => {
           turno?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => {
-            setShowConfirmModal(false);
-            setError(true);
-            setToastMessage("No ha sido confirmado el turno");
-            setShowToast(true);
-            resetForm();
-          }}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowConfirmModal(false);
+              setError(true);
+              setToastMessage("No ha sido confirmado el turno");
+              setShowToast(true);
+              resetForm();
+            }}
+          >
             Cancelar
           </Button>
           <Button

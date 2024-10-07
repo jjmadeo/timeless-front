@@ -249,3 +249,13 @@ export const postConfirmarTurno = async (payload, token) => {
     throw error;
   }
 };
+
+export const getTurnosByUser = async (token) => {
+  try {
+    const response = await getRequest(`turnosByUser`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los turnos:', error);
+    throw error;
+  }
+};
