@@ -18,7 +18,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const AppCalendar = ({ onSelectSlot, events }) => {
+const AppCalendar = ({ onSelectSlot, events, horaApertura, horaCierre, duracionTurnos }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
 
   useEffect(() => {
@@ -29,6 +29,12 @@ const AppCalendar = ({ onSelectSlot, events }) => {
     const { start, end } = slotInfo;
     onSelectSlot({ start, end });
   };
+
+  const minTime = new Date();
+  minTime.setHours(parseInt(horaApertura.split(':')[0]), parseInt(horaApertura.split(':')[1]), 0);
+
+  const maxTime = new Date();
+  maxTime.setHours(parseInt(horaCierre.split(':')[0]), parseInt(horaCierre.split(':')[1]), 0);
 
   return (
     <Container className="my-4">
@@ -43,6 +49,15 @@ const AppCalendar = ({ onSelectSlot, events }) => {
         onSelectEvent={event => alert(`Turno reservado:\n${event.title}`)}
         views={['week', 'day', 'agenda']} 
         defaultView="week"
+        step={duracionTurnos} // Duración de los turnos en minutos
+        timeslots={1} // Número de divisiones por cada "step"
+        min={minTime}
+        max={maxTime}
+        eventPropGetter={(event) => ({
+          style: {
+            backgroundColor: event.color,
+          },
+        })}
         messages={{
           next: 'Sig.',
           previous: 'Ant.',

@@ -27,7 +27,6 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import MapComponent from "../components/Map/Map";
-import { FaSearch } from "react-icons/fa";
 import "./styles/ReservarTurnos.scss";
 
 const libraries = ["places"];

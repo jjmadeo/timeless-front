@@ -259,3 +259,24 @@ export const getTurnosByUser = async (token) => {
     throw error;
   }
 };
+
+export const getTurnosByLineaId = async (id,token) => {
+  try {
+    const response = await getRequest(`turnos/lineaAtencion/${id}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los turnos:', error);
+    throw error;
+  }
+};
+
+export const getEmpresaById = async (id,token) => {
+  try {
+    const response = await getRequest(`empresa/${id}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener las empresas:', error);
+    throw error;
+  }
+};
+
