@@ -59,3 +59,11 @@
   background-color: $light-gray;
   color: black;
 }
+
+.rbc-allday-cell{
+  display: none;
+}
+
+.rbc-day-slot .rbc-events-container {
+  position: static !important;
+}
