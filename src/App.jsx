@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomeEmpresa from './pages/HomeEmpresa';
 import HomeGeneral from './pages/HomeGeneral';
 import Navbar from './components/Navbar/Navbar';
+import Footer from './components/Footer/Footer';
 import ProvideAuth from './lib/authProvider';
 import Login from './components/Login/Login';
 import './styles/style.scss';
@@ -16,22 +17,23 @@ import ReservarTurno from './pages/ReservarTurno';
 function App() {
   return (
     <ProvideAuth>
-    <Router>
-      <Navbar />
-      <div className="container mt-4">
-        <Routes>
-          <Route path="/landingPage" element={<LandingPage />} />
-          <Route path="/reservarTurno" element={<ReservarTurno />} />
-          <Route path="/homeGeneral" element={<HomeGeneral />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/homeEmpresa" element={<HomeEmpresa />} />
-          <Route path="/crearEmpresa" element={<CrearEmpresa />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </div>
-    </Router>
+      <Router>
+        <Navbar />
+        <div className="container mt-4" style={{ minHeight: 'calc(100vh - 233px)' }}>
+          <Routes>
+            <Route path="/landingPage" element={<LandingPage />} />
+            <Route path="/reservarTurno" element={<ReservarTurno />} />
+            <Route path="/homeGeneral" element={<HomeGeneral />} />
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/homeEmpresa" element={<HomeEmpresa />} />
+            <Route path="/crearEmpresa" element={<CrearEmpresa />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </div>
+        <Footer />
+      </Router>
     </ProvideAuth>
   );
 }
