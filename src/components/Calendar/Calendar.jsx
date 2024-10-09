@@ -18,8 +18,9 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const AppCalendar = ({ onSelectSlot, events, horaApertura, horaCierre, duracionTurnos }) => {
+const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCierre, duracionTurnos }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  const [view, setView] = useState('week');
 
   useEffect(() => {
     setCurrentEvents(events);
@@ -36,6 +37,14 @@ const AppCalendar = ({ onSelectSlot, events, horaApertura, horaCierre, duracionT
   const maxTime = new Date();
   maxTime.setHours(parseInt(horaCierre.split(':')[0]), parseInt(horaCierre.split(':')[1]), 0);
 
+  const eventTitleAccessor = (event) => {
+    if (view === 'week') {
+      return event.title;
+    } else {
+      return event.details;
+    }
+  };
+
   return (
     <Container className="my-4">
       <Calendar
@@ -43,12 +52,14 @@ const AppCalendar = ({ onSelectSlot, events, horaApertura, horaCierre, duracionT
         events={currentEvents}
         startAccessor="start"
         endAccessor="end"
+        titleAccessor={eventTitleAccessor} // Utiliza el campo "title" o "details" según la vista
         style={{ height: 500 }}
         selectable
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={event => alert(`Turno reservado:\n${event.title}`)}
+        onSelectEvent={onSelectEvent}
         views={['week', 'day', 'agenda']} 
         defaultView="week"
+        onView={(newView) => setView(newView)}
         step={duracionTurnos} // Duración de los turnos en minutos
         timeslots={1} // Número de divisiones por cada "step"
         min={minTime}
@@ -73,6 +84,7 @@ const AppCalendar = ({ onSelectSlot, events, horaApertura, horaCierre, duracionT
           showMore: total => `+ Ver más (${total})`
         }}
         formats={{
+          eventTimeRangeFormat: () => '', // No mostrar la hora en el título del evento
           dayFormat: (date, culture, localizer) => localizer.format(date, 'EEEE', culture), // Nombre completo del día en español
           weekdayFormat: (date, culture, localizer) => localizer.format(date, 'EEE', culture), // Nombre abreviado del día en español
           monthHeaderFormat: (date, culture, localizer) => localizer.format(date, 'MMMM yyyy', culture), // Mes y año en español

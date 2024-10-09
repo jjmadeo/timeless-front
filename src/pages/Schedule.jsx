@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import AppCalendar from '../components/Calendar/Calendar';
-import { Modal, Dropdown } from 'react-bootstrap';
-import AppForm from '../components/Forms/Form';
-import { parseISO, isBefore } from 'date-fns';
-import { getTurnosByLineaId, getEmpresaById } from "../helpers/fetch";
+import { Modal, Dropdown, Button, Toast, ToastContainer } from 'react-bootstrap';
+import { parseISO, isBefore, isToday } from 'date-fns';
+import { getTurnosByLineaId, getEmpresaById, postCancelarTurno } from "../helpers/fetch";
 import { useAuth } from '../lib/authProvider';
 
 const Schedule = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedAgenda, setSelectedAgenda] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+  const [showConfirmCancelModal, setShowConfirmCancelModal] = useState(false);
   const [empresaId, setEmpresaId] = useState(null);
   const [eventsByAgenda, setEventsByAgenda] = useState({});
   const [agendas, setAgendas] = useState([]);
@@ -47,27 +51,36 @@ const Schedule = () => {
       const events = {
         [selectedAgenda]: [
           ...res.pasados.map(event => ({
-            title: event.mensaje,
+            title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
+            details: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido} - ${event.usuario_turno_owner.email} - ${event.usuario_turno_owner.telefono}`,
             start: parseISO(event.fecha_hora),
             end: new Date(parseISO(event.fecha_hora).getTime() + event.duracion * 60000),
             color: '#ff9999', // Rojo suave
+            hashid: event.hashid,
+            ...event.usuario_turno_owner,
           })),
           ...res.hoy.map(event => {
             const start = parseISO(event.fecha_hora);
             const end = new Date(start.getTime() + event.duracion * 60000);
             const color = isBefore(end, now) ? '#ff9999' : '#99ccff'; // Rojo suave para pasados, azul suave para futuros
             return {
-              title: event.mensaje,
+              title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
+              details: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido} - ${event.usuario_turno_owner.email} - ${event.usuario_turno_owner.telefono}`,
               start,
               end,
               color,
+              hashid: event.hashid,
+              ...event.usuario_turno_owner,
             };
           }),
           ...res.futuros.map(event => ({
-            title: event.mensaje,
+            title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
+            details: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido} - ${event.usuario_turno_owner.email} - ${event.usuario_turno_owner.telefono}`,
             start: parseISO(event.fecha_hora),
             end: new Date(parseISO(event.fecha_hora).getTime() + event.duracion * 60000),
             color: '#99cc99', // Verde suave
+            hashid: event.hashid,
+            ...event.usuario_turno_owner,
           })),
         ],
       };
@@ -80,17 +93,60 @@ const Schedule = () => {
   }, [selectedAgenda, auth]);
 
   const handleSelectSlot = (slotInfo) => {
-    setSelectedSlot(slotInfo);
-    setShowModal(true);
+    //setSelectedSlot(slotInfo);
+    //setShowModal(true);
+  };
+
+  const handleSelectEvent = (event) => {
+    if (event.hashid) {
+
+      setSelectedEvent(event);
+      setShowModal(true);
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedSlot(null);
+    setSelectedEvent(null);
   };
 
   const handleSelectAgenda = (agenda) => {
     setSelectedAgenda(agenda);
+  };
+
+  const handleCancelTurno = () => {
+    setShowConfirmCancelModal(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+
+      // Cancelar turno con la API usando el hashid del evento seleccionado
+      const response = await postCancelarTurno(selectedEvent.hashid, token);
+
+      if (response.error == null) {
+        console.log("Turno cancelado:", response);
+        setToastMessage(response.mensaje);
+        setToastType("success");
+        setShowToast(true);
+        const updatedEvents = eventsByAgenda[selectedAgenda].filter(event => event.hashid !== selectedEvent.hashid);
+        setEventsByAgenda({ ...eventsByAgenda, [selectedAgenda]: updatedEvents });
+      } else {
+        console.error("Error al cancelar turno:", response.message);
+        setToastMessage(response.message);
+        setToastType("danger");
+        setShowToast(true);
+      }
+    } catch (error) {
+      console.error("Error al cancelar turno:", error.message);
+      setToastMessage(error.message);
+      setToastType("danger");
+      setShowToast(true);
+    }
+    setShowConfirmCancelModal(false);
+    handleCloseModal();
   };
 
   return (
@@ -113,6 +169,7 @@ const Schedule = () => {
       <AppCalendar 
         events={eventsByAgenda[selectedAgenda]} 
         onSelectSlot={handleSelectSlot} 
+        onSelectEvent={handleSelectEvent} 
         horaApertura={horaApertura} 
         horaCierre={horaCierre} 
         duracionTurnos={duracionTurnos} 
@@ -120,12 +177,56 @@ const Schedule = () => {
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Reservar Turno</Modal.Title>
+          <Modal.Title>Información del Turno</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <AppForm slotInfo={selectedSlot} onSuccess={handleCloseModal} />
+          {selectedEvent ? (
+            <div>
+              <p><strong>Nombre:</strong> {selectedEvent.nombre}</p>
+              <p><strong>Apellido:</strong> {selectedEvent.apellido}</p>
+              <p><strong>Teléfono:</strong> {selectedEvent.telefono}</p>
+              <p><strong>Correo:</strong> {selectedEvent.email}</p>
+              {(isToday(selectedEvent.start) || isBefore(new Date(), selectedEvent.start)) && (
+                <Button variant="danger" onClick={handleCancelTurno}>Cancelar Turno</Button>
+              )}
+            </div>
+          ) : (
+            null
+          )}
         </Modal.Body>
       </Modal>
+
+      <Modal
+        show={showConfirmCancelModal}
+        onHide={() => setShowConfirmCancelModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Cancelación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que deseas cancelar este turno?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmCancelModal(false)}>
+            Cerrar
+          </Button>
+          <Button variant="danger" onClick={handleConfirmCancel}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          bg={toastType === "success" ? "success" : "danger"}
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   );
 };

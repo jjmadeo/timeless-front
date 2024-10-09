@@ -11,13 +11,13 @@ import {
     Modal,
 } from "react-bootstrap";
 import "./styles/HomeGeneral.scss";
-import { getTurnosByUser } from "../helpers/fetch";
+import { getTurnosByUser, postCancelarTurno } from "../helpers/fetch";
 import { useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import MapComponent from "../components/Map/Map";
 
-const AppointmentCard = ({ appointment, color, data, onViewMap }) => {
+const AppointmentCard = ({ appointment, color, data, onViewMap, onCancel }) => {
     const formattedDate = format(new Date(appointment.fecha_hora), "EEEE dd 'de' MMMM", { locale: es });
     const formattedTime = format(new Date(appointment.fecha_hora), "HH'hs'", { locale: es });
 
@@ -41,6 +41,7 @@ const AppointmentCard = ({ appointment, color, data, onViewMap }) => {
                         size="sm"
                         className="mr-2"
                         style={{ visibility: data.pasado === null ? 'visible' : 'hidden' }}
+                        onClick={() => onCancel(appointment)}
                     >
                         Cancelar turno
                     </Button>
@@ -64,6 +65,8 @@ const HomeGeneral = () => {
     const [toastType, setToastType] = useState("success");
     const [showMapModal, setShowMapModal] = useState(false);
     const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+    const [showConfirmCancelModal, setShowConfirmCancelModal] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
     const location = useLocation();
 
     const fetchGetTurnos = async () => {
@@ -102,6 +105,38 @@ const HomeGeneral = () => {
         setShowMapModal(true);
     };
 
+    const handleCancelAppointment = (appointment) => {
+        setSelectedAppointment(appointment);
+        setShowConfirmCancelModal(true);
+    };
+
+    const handleConfirmCancel = async () => {
+        try {
+            const token = JSON.parse(localStorage.getItem("token")).token;
+            const response = await postCancelarTurno(selectedAppointment.hashid, token);
+
+            if (response.error == null) {
+                console.log("Turno cancelado:", response);
+                setToastMessage(response.mensaje);
+                setToastType("success");
+                setShowToast(true);
+                const updatedEvents = data.futuros.filter(event => event.hashid !== selectedAppointment.hashid);
+                setData({ ...data, futuros: updatedEvents });
+            } else {
+                console.error("Error al cancelar turno:", response.message);
+                setToastMessage(response.message);
+                setToastType("danger");
+                setShowToast(true);
+            }
+        } catch (error) {
+            console.error("Error al cancelar turno:", error.message);
+            setToastMessage(error.message);
+            setToastType("danger");
+            setShowToast(true);
+        }
+        setShowConfirmCancelModal(false);
+    };
+
     return (
         <Container className="mt-5">
             <Row className="justify-content-center">
@@ -118,6 +153,7 @@ const HomeGeneral = () => {
                                     color="#3B6C5B"
                                     data={{ pasado: null }}
                                     onViewMap={handleViewMap}
+                                    onCancel={handleCancelAppointment}
                                 />
                             ))
                         )}
@@ -139,6 +175,7 @@ const HomeGeneral = () => {
                                     color="#73633A"
                                     data={{ pasado: null }}
                                     onViewMap={handleViewMap}
+                                    onCancel={handleCancelAppointment}
                                 />
                             ))
                         )}
@@ -195,6 +232,26 @@ const HomeGeneral = () => {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMapModal(false)}>
                         Cerrar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal
+                show={showConfirmCancelModal}
+                onHide={() => setShowConfirmCancelModal(false)}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmar Cancelación</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    ¿Estás seguro de que deseas cancelar este turno?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowConfirmCancelModal(false)}>
+                        Cerrar
+                    </Button>
+                    <Button variant="danger" onClick={handleConfirmCancel}>
+                        Confirmar
                     </Button>
                 </Modal.Footer>
             </Modal>

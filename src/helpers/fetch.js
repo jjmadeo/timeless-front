@@ -280,3 +280,14 @@ export const getEmpresaById = async (id,token) => {
   }
 };
 
+
+export const postCancelarTurno = async (payload, token) => {
+  try {
+    
+    const response = await postRequestWithParams('CancelarTurno', payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
