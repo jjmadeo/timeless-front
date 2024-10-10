@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { format, parse, startOfWeek, endOfWeek, getDay } from 'date-fns';
 import esES from 'date-fns/locale/es';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.scss';
@@ -18,7 +18,17 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCierre, duracionTurnos }) => {
+const getWeekRange = () => {
+  const now = new Date();
+  const start = startOfWeek(now, { weekStartsOn: 1 }); // Lunes
+  const end = endOfWeek(now, { weekStartsOn: 1 }); // Domingo
+  return {
+    start: format(start, 'yyyy-MM-dd'),
+    end: format(end, 'yyyy-MM-dd')
+  };
+};
+
+const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duracionTurnos }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [view, setView] = useState('week');
 
@@ -26,41 +36,13 @@ const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCi
     setCurrentEvents(events);
   }, [events]);
 
-  const handleSelectSlot = (slotInfo) => {
-    const { start, end } = slotInfo;
-    onSelectSlot({ start, end });
-  };
-
   const minTime = new Date();
   minTime.setHours(parseInt(horaApertura.split(':')[0]), parseInt(horaApertura.split(':')[1]), 0);
 
   const maxTime = new Date();
   maxTime.setHours(parseInt(horaCierre.split(':')[0]), parseInt(horaCierre.split(':')[1]), 0);
 
-  const eventTitleAccessor = (event) => {
-    if (view === 'week' ) {
-      return event.title;
-    } else {
-      return event.details;
-    }
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setView('day');
-      } else {
-        setView('week');
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Llamar a la función una vez para establecer la vista inicial
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const eventTitleAccessor = (event) => event.title;
 
   return (
     <Container className="my-4">
@@ -69,12 +51,11 @@ const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCi
         events={currentEvents}
         startAccessor="start"
         endAccessor="end"
-        titleAccessor={eventTitleAccessor} // Utiliza el campo "title" o "details" según la vista
+        titleAccessor={eventTitleAccessor}
         style={{ height: 500 }}
-        selectable
-        onSelectSlot={handleSelectSlot}
+        selectable={false} // No permitir seleccionar espacios vacíos
         onSelectEvent={onSelectEvent}
-        views={['week', 'day', 'agenda']} 
+        views={['week']}
         defaultView={view}
         onView={(newView) => setView(newView)}
         step={duracionTurnos} // Duración de los turnos en minutos
@@ -90,10 +71,7 @@ const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCi
           next: 'Sig.',
           previous: 'Ant.',
           today: 'Hoy',
-          month: 'Mes',
           week: 'Semana',
-          day: 'Día',
-          agenda: 'Agenda',
           date: 'Fecha',
           time: 'Hora',
           event: 'Evento',
@@ -106,7 +84,6 @@ const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCi
           weekdayFormat: (date, culture, localizer) => localizer.format(date, 'EEE', culture), // Nombre abreviado del día en español
           monthHeaderFormat: (date, culture, localizer) => localizer.format(date, 'MMMM yyyy', culture), // Mes y año en español
           dayHeaderFormat: (date, culture, localizer) => localizer.format(date, 'EEEE, MMMM d', culture), // Día, mes y día del mes en español
-          agendaDateFormat: (date, culture, localizer) => localizer.format(date, 'EEEE, d MMMM', culture), // Fecha en la vista de agenda
         }}
         culture="es" 
       />
@@ -114,4 +91,4 @@ const AppCalendar = ({ onSelectSlot, onSelectEvent, events, horaApertura, horaCi
   );
 };
 
-export default AppCalendar;
+export default TurnoCalendar;

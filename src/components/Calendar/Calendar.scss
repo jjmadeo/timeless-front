@@ -4,6 +4,7 @@
   background-color: $creamy;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%; // Asegura que el calendario ocupe el 100% del ancho del contenedor
 }
 
 .rbc-event {
@@ -60,10 +61,49 @@
   color: black;
 }
 
-.rbc-allday-cell{
+.rbc-allday-cell {
   display: none;
 }
 
 .rbc-day-slot .rbc-events-container {
   position: static !important;
+}
+
+@media (max-width: 768px) {
+  .rbc-calendar {
+    height: auto; // Ajusta la altura automáticamente en pantallas pequeñas
+  }
+
+  .rbc-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rbc-toolbar button {
+    margin: 4px 0;
+  }
+
+  .rbc-header {
+    font-size: 0.8rem; // Reduce el tamaño de la fuente en pantallas pequeñas
+  }
+
+  .rbc-event {
+    font-size: 0.8rem; // Reduce el tamaño de la fuente en los eventos
+  }
+
+  .rbc-agenda-view table {
+    width: 100%; // Asegura que la tabla de la vista de agenda ocupe el 100% del ancho del contenedor
+  }
+
+  .rbc-agenda-view th,
+  .rbc-agenda-view td {
+    padding: 8px; // Ajusta el padding en la vista de agenda
+    font-size: 0.8rem; // Reduce el tamaño de la fuente en la vista de agenda
+  }
+
+  .rbc-agenda-view .rbc-agenda-time-cell,
+  .rbc-agenda-view .rbc-agenda-date-cell {
+    font-size: 0.7rem; // Reduce aún más el tamaño de la fuente para las celdas de fecha y hora
+    padding: 4px; // Reduce el padding para las celdas de fecha y hora
+  }
 }

@@ -218,9 +218,9 @@ export const getEmpresasByLocation = async (lon, lat, distance = 6, rubro, token
 };
 
 
-export const getTurnosDisponibles = async (id, fecha, token) => {
+export const getTurnosDisponibles = async (id, desde, hasta, token) => {
   try {
-    const response = await getRequest(`VisualizarTurnosDisponibles/${id}?fecha=${fecha}`, token);
+    const response = await getRequest(`VisualizarTurnosDisponibles/${id}?desde=${desde}&hasta=${hasta}`, token);
     return response;
   } catch (error) {
     console.error('Error al obtener los turnos:', error);

@@ -120,8 +120,9 @@ const HomeGeneral = () => {
                 setToastMessage(response.mensaje);
                 setToastType("success");
                 setShowToast(true);
-                const updatedEvents = data.futuros.filter(event => event.hashid !== selectedAppointment.hashid);
-                setData({ ...data, futuros: updatedEvents });
+                const token = JSON.parse(localStorage.getItem("token")).token;
+                const res = await getTurnosByUser(token);
+                setData(res);
             } else {
                 console.error("Error al cancelar turno:", response.message);
                 setToastMessage(response.message);
