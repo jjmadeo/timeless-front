@@ -123,7 +123,7 @@ const ReservarTurno = () => {
     try {
       setLoading(true); // Mostrar spinner
       const token = JSON.parse(localStorage.getItem("token")).token;
-      const res = await getEmpresasByLocation(lng, lat, 6, rubro, token);
+      const res = await getEmpresasByLocation(lng, lat, 20, rubro, token);
       if (res.data.length === 0) {
         setShowNoResultsModal(true);
       } else {
@@ -161,7 +161,7 @@ const ReservarTurno = () => {
     }
 
     if (useCurrentLocation && location) {
-      fetchCompanies(location.lng, location.lat, selectedRubro);
+      fetchCompanies(location.lat, location.lng, selectedRubro);
     } else {
       try {
         const response = await fetch(

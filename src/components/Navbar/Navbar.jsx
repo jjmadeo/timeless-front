@@ -48,7 +48,7 @@ const NavigationBar = () => {
               </>
             ) : userRole === '[ROLE_GENERAL]' ? (
               <>
-                <Nav.Link as={Link} to="/homeGeneral">Inicio</Nav.Link>
+                <Nav.Link as={Link} to="/homeGeneral">Mis turnos</Nav.Link>
                 <Nav.Link as={Link} to="/reservarTurno">Reservar turno</Nav.Link>
               </>
             ) : userRole === '[ROLE_EMPRESA]' ? (

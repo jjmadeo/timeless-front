@@ -207,7 +207,7 @@ export const getStaticData = async (token) => {
   }
 };
 
-export const getEmpresasByLocation = async (lon, lat, distance = 6, rubro, token) => {
+export const getEmpresasByLocation = async (lon, lat, distance = 20, rubro, token) => {
   try {
     const response = await getRequest(`empresasByLocation?lon=${lon}&lat=${lat}&distance=${distance}&rubro=${rubro}`, token);
     return response;

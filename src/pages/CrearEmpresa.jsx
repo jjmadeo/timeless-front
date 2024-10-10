@@ -47,6 +47,16 @@ const CrearEmpresa = () => {
   const navigate = useNavigate();
   const auth = useAuth();
 
+  const diasSemana = {
+    "Lunes": 1,
+    "Martes": 2,
+    "Miércoles": 3,
+    "Jueves": 4,
+    "Viernes": 5,
+    "Sábado": 6,
+    "Domingo": 7
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split(".");
@@ -81,21 +91,20 @@ const CrearEmpresa = () => {
     });
   };
 
-  
   const handleToggleDiaLaboral = (dia) => {
     setFormData((prevData) => {
-        const dias_laborales = prevData.calendario.dias_laborales.includes(dia)
-            ? prevData.calendario.dias_laborales.filter((d) => d !== dia)
-            : [...prevData.calendario.dias_laborales, dia];
-        return {
-            ...prevData,
-            calendario: {
-                ...prevData.calendario,
-                dias_laborales,
-            },
-        };
+      const dias_laborales = prevData.calendario.dias_laborales.includes(dia)
+        ? prevData.calendario.dias_laborales.filter((d) => d !== dia)
+        : [...prevData.calendario.dias_laborales, dia];
+      return {
+        ...prevData,
+        calendario: {
+          ...prevData.calendario,
+          dias_laborales,
+        },
+      };
     });
-};
+  };
 
   const handleAddLineaAtencion = () => {
     setFormData((prevData) => ({
@@ -152,8 +161,7 @@ const CrearEmpresa = () => {
   };
 
   const validateCalendario = () => {
-    const { hora_apertura, hora_cierre, dias_laborales} =
-      formData.calendario;
+    const { hora_apertura, hora_cierre, dias_laborales } = formData.calendario;
     if (!hora_apertura || !hora_cierre || dias_laborales.length === 0) {
       setToastMessage("Todos los campos del calendario son obligatorios.");
       setError(true);
@@ -168,7 +176,7 @@ const CrearEmpresa = () => {
       setShowToast(true);
       return false;
     }
-    
+
     return true;
   };
 
@@ -201,6 +209,8 @@ const CrearEmpresa = () => {
 
     const token = JSON.parse(localStorage.getItem("token")).token; // Obtener el token del localStorage
 
+    const diasLaboralesNumeros = formData.calendario.dias_laborales.map(dia => diasSemana[dia]);
+
     // Format hora_apertura and hora_cierre to include seconds
     const formattedData = {
       ...formData,
@@ -208,7 +218,7 @@ const CrearEmpresa = () => {
         ...formData.calendario,
         hora_apertura: `${formData.calendario.hora_apertura}:00`,
         hora_cierre: `${formData.calendario.hora_cierre}:00`,
-        dias_laborales: formData.calendario.dias_laborales.join(","),
+        dias_laborales: diasLaboralesNumeros.join(";"),
       },
     };
 
@@ -234,276 +244,291 @@ const CrearEmpresa = () => {
 
   return (
     <Container fluid className="register-container" id="container-form">
-        <Row className="crear-empresa-container">
-            <Col md={12}>
-                <Stepper activeStep={currentStep}>
-                    <Step label="Datos Fiscales" />
-                    <Step label="Calendario" />
-                    <Step label="Líneas de Atención y Rubro" />
-                </Stepper>
-                <Form onSubmit={handleSubmit}>
-                    {currentStep === 0 && (
-                        <div>
-                            <h3>Datos Fiscales</h3>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="razon_social">
-                                        <Form.Label>Razón Social</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.razon_social"
-                                            value={formData.datos_fiscales.razon_social}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="nombre_fantasia">
-                                        <Form.Label>Nombre de Fantasía</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.nombre_fantasia"
-                                            value={formData.datos_fiscales.nombre_fantasia}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="cuit">
-                                        <Form.Label>CUIT</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.cuit"
-                                            value={formData.datos_fiscales.cuit}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="calle">
-                                        <Form.Label>Calle</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.calle"
-                                            value={formData.datos_fiscales.domicilio_fiscal.calle}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="numero">
-                                        <Form.Label>Número</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.numero"
-                                            value={formData.datos_fiscales.domicilio_fiscal.numero}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="ciudad">
-                                        <Form.Label>Ciudad</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.ciudad"
-                                            value={formData.datos_fiscales.domicilio_fiscal.ciudad}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="localidad">
-                                        <Form.Label>Localidad</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.localidad"
-                                            value={formData.datos_fiscales.domicilio_fiscal.localidad}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="provincia">
-                                        <Form.Label>Provincia</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.provincia"
-                                            value={formData.datos_fiscales.domicilio_fiscal.provincia}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="pais">
-                                        <Form.Label>País</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="datos_fiscales.domicilio_fiscal.pais"
-                                            value={formData.datos_fiscales.domicilio_fiscal.pais}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                        </div>
-                    )}
-                    {currentStep === 1 && (
-                        <div>
-                            <h3>Calendario</h3>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group controlId="hora_apertura">
-                                        <Form.Label>Hora de Apertura</Form.Label>
-                                        <Form.Control
-                                            type="time"
-                                            name="calendario.hora_apertura"
-                                            value={formData.calendario.hora_apertura}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group controlId="hora_cierre">
-                                        <Form.Label>Hora de Cierre</Form.Label>
-                                        <Form.Control
-                                            type="time"
-                                            name="calendario.hora_cierre"
-                                            value={formData.calendario.hora_cierre}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row>
-    <Col md={12}>
-        <Form.Group controlId="dias_laborales">
-            <Form.Label>Días Laborales</Form.Label>
-            <div className="dias-laborales-container">
-                {["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"].map((dia) => (
-                    <Form.Check
-                        inline
-                        key={dia}
-                        type="checkbox"
-                        label={dia}
-                        value={dia}
-                        checked={formData.calendario.dias_laborales.includes(dia)}
-                        onChange={(e) => handleToggleDiaLaboral(e.target.value)}
-                    />
+      <Row className="crear-empresa-container">
+        <Col md={12}>
+          <Stepper activeStep={currentStep}>
+            <Step label="Datos Fiscales" />
+            <Step label="Calendario" />
+            <Step label="Líneas de Atención y Rubro" />
+          </Stepper>
+          <Form onSubmit={handleSubmit}>
+            {currentStep === 0 && (
+              <div>
+                <h3>Datos Fiscales</h3>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="razon_social">
+                      <Form.Label>Razón Social</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.razon_social"
+                        value={formData.datos_fiscales.razon_social}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="nombre_fantasia">
+                      <Form.Label>Nombre de Fantasía</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.nombre_fantasia"
+                        value={formData.datos_fiscales.nombre_fantasia}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="cuit">
+                      <Form.Label>CUIT</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.cuit"
+                        value={formData.datos_fiscales.cuit}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="calle">
+                      <Form.Label>Calle</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.calle"
+                        value={formData.datos_fiscales.domicilio_fiscal.calle}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="numero">
+                      <Form.Label>Número</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.numero"
+                        value={formData.datos_fiscales.domicilio_fiscal.numero}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="ciudad">
+                      <Form.Label>Ciudad</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.ciudad"
+                        value={formData.datos_fiscales.domicilio_fiscal.ciudad}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="localidad">
+                      <Form.Label>Localidad</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.localidad"
+                        value={
+                          formData.datos_fiscales.domicilio_fiscal.localidad
+                        }
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="provincia">
+                      <Form.Label>Provincia</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.provincia"
+                        value={
+                          formData.datos_fiscales.domicilio_fiscal.provincia
+                        }
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="pais">
+                      <Form.Label>País</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="datos_fiscales.domicilio_fiscal.pais"
+                        value={formData.datos_fiscales.domicilio_fiscal.pais}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
+            )}
+            {currentStep === 1 && (
+              <div>
+                <h3>Calendario</h3>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group controlId="hora_apertura">
+                      <Form.Label>Hora de Apertura</Form.Label>
+                      <Form.Control
+                        type="time"
+                        name="calendario.hora_apertura"
+                        value={formData.calendario.hora_apertura}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="hora_cierre">
+                      <Form.Label>Hora de Cierre</Form.Label>
+                      <Form.Control
+                        type="time"
+                        name="calendario.hora_cierre"
+                        value={formData.calendario.hora_cierre}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={12}>
+                    <Form.Group controlId="dias_laborales">
+                      <Form.Label>Días Laborales</Form.Label>
+                      <div className="dias-laborales-container">
+                        {[
+                          "Domingo",
+                          "Lunes",
+                          "Martes",
+                          "Miércoles",
+                          "Jueves",
+                          "Viernes",
+                          "Sábado",
+                        ].map((dia) => (
+                          <Form.Check
+                            inline
+                            key={dia}
+                            type="checkbox"
+                            label={dia}
+                            value={dia}
+                            checked={formData.calendario.dias_laborales.includes(
+                              dia
+                            )}
+                            onChange={(e) =>
+                              handleToggleDiaLaboral(e.target.value)
+                            }
+                          />
+                        ))}
+                      </div>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
+            )}
+            {currentStep === 2 && (
+              <div>
+                <h3>Rubro</h3>
+                <Row>
+                  <Col md={12}>
+                    <Form.Group controlId="rubro">
+                      <Form.Label>Rubro</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="rubro"
+                        value={formData.rubro}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <h3>Líneas de Atención</h3>
+                {formData.lineas_atencion.map((linea, index) => (
+                  <Row key={index} className="item-container">
+                    <Col md={6}>
+                      <Form.Group controlId={`descripcion-${index}`}>
+                        <Form.Label>Descripción</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name={`lineas_atencion.${index}.descripcion`}
+                          value={linea.descripcion}
+                          onChange={handleChange}
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group controlId={`duracion_turnos-${index}`}>
+                        <Form.Label>Duración de Turnos (minutos)</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name={`lineas_atencion.${index}.duracion_turnos`}
+                          value={linea.duracion_turnos}
+                          onChange={handleChange}
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={12} className="text-right">
+                      {formData.lineas_atencion.length > 1 && (
+                        <Button
+                          variant="danger"
+                          className="btn-quitar"
+                          onClick={() => handleRemoveLineaAtencion(index)}
+                        >
+                          Quitar
+                        </Button>
+                      )}
+                    </Col>
+                  </Row>
                 ))}
+                <Button variant="primary" onClick={handleAddLineaAtencion}>
+                  Agregar Línea de Atención
+                </Button>
+              </div>
+            )}
+            <div className="d-flex justify-content-between mt-4">
+              {currentStep > 0 && (
+                <Button variant="secondary" onClick={handleBack}>
+                  Atrás
+                </Button>
+              )}
+              {currentStep < 2 ? (
+                <Button
+                  variant="primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNext();
+                  }}
+                >
+                  Siguiente
+                </Button>
+              ) : (
+                <Button variant="success" type="submit">
+                  Crear Empresa
+                </Button>
+              )}
             </div>
-        </Form.Group>
-    </Col>
-</Row>
-                            
-                        </div>
-                    )}
-                    {currentStep === 2 && (
-                        <div>
-                            <h3>Rubro</h3>
-                            <Row>
-                                <Col md={12}>
-                                    <Form.Group controlId="rubro">
-                                        <Form.Label>Rubro</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="rubro"
-                                            value={formData.rubro}
-                                            onChange={handleChange}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <h3>Líneas de Atención</h3>
-                            {formData.lineas_atencion.map((linea, index) => (
-                                <Row key={index} className="item-container">
-                                    <Col md={6}>
-                                        <Form.Group controlId={`descripcion-${index}`}>
-                                            <Form.Label>Descripción</Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name={`lineas_atencion.${index}.descripcion`}
-                                                value={linea.descripcion}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6}>
-                                        <Form.Group controlId={`duracion_turnos-${index}`}>
-                                            <Form.Label>Duración de Turnos (minutos)</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                                name={`lineas_atencion.${index}.duracion_turnos`}
-                                                value={linea.duracion_turnos}
-                                                onChange={handleChange}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={12} className="text-right">
-                                        {formData.lineas_atencion.length > 1 && (
-                                            <Button
-                                                variant="danger"
-                                                className="btn-quitar"
-                                                onClick={() => handleRemoveLineaAtencion(index)}
-                                            >
-                                                Quitar
-                                            </Button>
-                                        )}
-                                    </Col>
-                                </Row>
-                            ))}
-                            <Button variant="primary" onClick={handleAddLineaAtencion}>
-                                Agregar Línea de Atención
-                            </Button>
-                        </div>
-                    )}
-                    <div className="d-flex justify-content-between mt-4">
-                        {currentStep > 0 && (
-                            <Button variant="secondary" onClick={handleBack}>
-                                Atrás
-                            </Button>
-                        )}
-                        {currentStep < 2 ? (
-                            <Button
-                                variant="primary"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleNext();
-                                }}
-                            >
-                                Siguiente
-                            </Button>
-                        ) : (
-                            <Button variant="success" type="submit">
-                                Crear Empresa
-                            </Button>
-                        )}
-                    </div>
-                </Form>
-            </Col>
-        </Row>
-        {/* Toast container */}
-        <ToastContainer position="bottom-end" className="p-3">
-            <Toast
-                bg={error ? "danger" : "success"}
-                onClose={() => setShowToast(false)}
-                show={showToast}
-                delay={3000}
-                autohide
-            >
-                <Toast.Body>{toastMessage}</Toast.Body>
-            </Toast>
-        </ToastContainer>
+          </Form>
+        </Col>
+      </Row>
+      {/* Toast container */}
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          bg={error ? "danger" : "success"}
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
-);
+  );
 };
 
 export default CrearEmpresa;
