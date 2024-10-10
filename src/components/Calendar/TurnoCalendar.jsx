@@ -18,17 +18,16 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const getWeekRange = () => {
-  const now = new Date();
-  const start = startOfWeek(now, { weekStartsOn: 1 }); // Lunes
-  const end = endOfWeek(now, { weekStartsOn: 1 }); // Domingo
+const getWeekRange = (date) => {
+  const start = startOfWeek(date, { weekStartsOn: 1 }); // Lunes
+  const end = endOfWeek(date, { weekStartsOn: 1 }); // Domingo
   return {
     start: format(start, 'yyyy-MM-dd'),
     end: format(end, 'yyyy-MM-dd')
   };
 };
 
-const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duracionTurnos }) => {
+const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duracionTurnos, onWeekChange }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [view, setView] = useState('week');
 
@@ -44,6 +43,12 @@ const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duraci
 
   const eventTitleAccessor = (event) => event.title;
 
+  const handleNavigate = (date) => {
+    if (view === 'week') {
+      onWeekChange(date);
+    }
+  };
+
   return (
     <Container className="my-4">
       <Calendar
@@ -58,6 +63,7 @@ const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duraci
         views={['week']}
         defaultView={view}
         onView={(newView) => setView(newView)}
+        onNavigate={handleNavigate}
         step={duracionTurnos} // Duración de los turnos en minutos
         timeslots={1} // Número de divisiones por cada "step"
         min={minTime}

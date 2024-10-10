@@ -28,6 +28,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import MapComponent from "../components/Map/Map";
 import "./styles/ReservarTurnos.scss";
+import TurnoCalendar from "../components/Calendar/TurnoCalendar";
+import { getWeekRange } from "../helpers/dateUtils";
 
 const libraries = ["places"];
 
@@ -35,8 +37,6 @@ const ReservarTurno = () => {
   const [location, setLocation] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [selectedRubro, setSelectedRubro] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [rubros, setRubros] = useState([]);
   const [autocomplete, setAutocomplete] = useState(null);
@@ -44,16 +44,22 @@ const ReservarTurno = () => {
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
-  const [showNoResultsModal, setShowNoResultsModal] = useState(false);
-  const [showNoTimesModal, setShowNoTimesModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const [selectedHashid, setSelectedHashId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [horaApertura, setHoraApertura] = useState("09:00");
+  const [horaCierre, setHoraCierre] = useState("18:00");
+  const [duracionTurnos, setDuracionTurnos] = useState(30);
+  const [events, setEvents] = useState([]);
+
   const [errorTimes, setErrorTimes] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [showNoResultsModal, setShowNoResultsModal] = useState(false);
+  const [showNoTimesModal, setShowNoTimesModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -61,6 +67,34 @@ const ReservarTurno = () => {
   useEffect(() => {
     fetchRubros();
   }, []);
+
+  const resetForm = () => {
+    setSelectedTime(null);
+    setSelectedHashId("");
+    setLoading(false);
+    setErrorTimes("");
+    setError(false);
+  };
+
+  const handleConfirmarTurno = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+
+      // Confirmar turno con la API usando el selectedHashId
+      const response = await postConfirmarTurno(selectedHashid, token);
+
+      if (response.error == null) {
+        console.log("Turno confirmado:", response);
+        navigate("/HomeGeneral", {
+          state: { message: response, type: "success" },
+        });
+      } else {
+        console.error("Error al confirmar turno:", response.message);
+      }
+    } catch (error) {
+      console.error("Error al confirmar turno:", error.message);
+    }
+  };
 
   const fetchRubros = async () => {
     try {
@@ -154,7 +188,10 @@ const ReservarTurno = () => {
     const company = companies.find(
       (company) => company.id === selectedCompanyId
     );
+
     setSelectedCompany(company);
+    setHoraApertura(company.calendario.hora_apertura);
+    setHoraCierre(company.calendario.hora_cierre);
     setSelectedLine(null);
   };
 
@@ -164,54 +201,53 @@ const ReservarTurno = () => {
       (line) => line.id === selectedLineId
     );
     setSelectedLine(line);
+    handleDateSelected(new Date());
   };
 
-  const handleDateSelected = async (date) => {
-    setSelectedDate(date);
-
+  useEffect(() => {
     if (selectedLine) {
+      handleDateSelected(new Date());
+    }
+  }, [selectedLine]);
+
+  const handleDateSelected = async (date) => {
+    if (selectedLine) {
+      const { start, end } = getWeekRange(date);
       try {
         const token = JSON.parse(localStorage.getItem("token")).token;
-        const formattedDate = date.toISOString().split("T")[0]; // Formatear la fecha como 'YYYY-MM-DD'
         const res = await getTurnosDisponibles(
           selectedLine.id,
-          formattedDate,
+          start,
+          end,
           token
         );
 
         if (res.data) {
+          setDuracionTurnos(res.data[0].duracion);
           if (res.data.length > 0) {
-            // Extraer los horarios desde el campo fecha_hora
             const now = new Date();
             const horariosDisponibles = res.data
-              .filter((turno) => new Date(turno.fecha_hora) > now) // Filtrar horarios pasados
-              .map((turno) => {
-                const hora = new Date(turno.fecha_hora).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-                return {
-                  hora,
-                  hashid: turno.hashid, // Incluir el hashid
-                };
-              });
-            setAvailableTimes(horariosDisponibles);
+              .filter((turno) => new Date(turno.fecha_hora) > now)
+              .map((turno) => ({
+                title: "Disponible",
+                start: new Date(turno.fecha_hora),
+                end: new Date(
+                  new Date(turno.fecha_hora).getTime() + turno.duracion * 60000
+                ),
+                hashid: turno.hashid,
+                color: "#99cc99",
+              }));
+            setEvents(horariosDisponibles);
           }
         } else {
-          if (res.error.status == "BAD_REQUEST") {
-            setErrorTimes(res.error.title);
-            setShowNoTimesModal(true);
+          if (res.error.status === "BAD_REQUEST") {
+            // Handle error
           }
         }
       } catch (error) {
         console.error("Error al obtener turnos disponibles:", error);
       }
     }
-  };
-
-  const handleTimeSelected = (time, hashid) => {
-    setSelectedTime(time);
-    setSelectedHashId(hashid);
   };
 
   const handlePreseleccionarTurno = async () => {
@@ -232,27 +268,6 @@ const ReservarTurno = () => {
     }
   };
 
-  const handleConfirmarTurno = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem("token")).token;
-
-      // Confirmar turno con la API usando el selectedHashId
-      const response = await postConfirmarTurno(selectedHashid, token);
-
-      if (response.error == null) {
-        console.log("Turno confirmado:", response);
-        navigate("/HomeGeneral", {
-          state: { message: response, type: "success" },
-        });
-      } else {
-        console.error("Error al confirmar turno:", response.message);
-      }
-    } catch (error) {
-      console.error("Error al confirmar turno:", error.message);
-    }
-  };
-
-  // Obtener ubicación actual solo si se selecciona la opción "usar ubicación actual"
   useEffect(() => {
     if (useCurrentLocation) {
       const fetchLocation = async () => {
@@ -275,20 +290,21 @@ const ReservarTurno = () => {
     }
   }, [useCurrentLocation]);
 
-  const resetForm = () => {
-    setSelectedDate(null);
-    setAvailableTimes([]);
-    setSelectedTime(null);
-    setSelectedHashId("");
-    setLoading(false);
-    setErrorTimes("");
-    setError(false);
+  const handleSelectEvent = (event) => {
+    setSelectedTime(event.start);
+    setSelectedHashId(event.hashid);
+  };
+
+  const handleWeekChange = (date) => {
+    console.log("Nueva semana seleccionada:", date);
+    handleDateSelected(date);
   };
 
   return (
     <Container fluid>
       <h1 className="text-center my-4">Solicita un nuevo turno</h1>
       <hr />
+      <h2 className="text-center my-4">Buscar por Rubro y zona</h2>
       <Row className="w-full">
         <Col md={3} className="mb-4">
           <Form.Group>
@@ -310,7 +326,7 @@ const ReservarTurno = () => {
 
         <Col md={6} className="mb-4">
           <Form.Group>
-            <Form.Label>Dirección</Form.Label>
+            <Form.Label>Dirección / Zona</Form.Label>
             <LoadScriptNext
               googleMapsApiKey="AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc"
               libraries={libraries}
@@ -354,9 +370,11 @@ const ReservarTurno = () => {
             <Card.Body className="card-servicios">
               <Row>
                 {/* Columna izquierda: Servicios y Líneas de Atención */}
-                <Col md={12} lg={5} className="mb-4">
+                <Col md={12} lg={4} className="mb-4">
                   <Form.Group>
-                    <Form.Label>Servicio</Form.Label>
+                    <Form.Label>
+                      <strong>Servicio</strong>
+                    </Form.Label>
                     <div className="d-flex">
                       <Form.Control
                         className="select me-1"
@@ -383,61 +401,72 @@ const ReservarTurno = () => {
                   </Form.Group>
 
                   {selectedCompany && (
-                    <Form.Group className="mt-3">
-                      <Form.Label>Línea de Atención</Form.Label>
-                      <Form.Control
-                        className="select"
-                        as="select"
-                        onChange={handleLineChange}
-                      >
-                        <option value="">Selecciona una línea</option>
-                        {selectedCompany.lineas_atencion.map((line) => (
-                          <option key={line.id} value={line.id}>
-                            {line.descripcion}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </Form.Group>
+                    <>
+                      <Form.Group className="mt-3">
+                        <Form.Label>
+                          <strong>Línea de Atención</strong>
+                        </Form.Label>
+                        <Form.Control
+                          className="select"
+                          as="select"
+                          onChange={handleLineChange}
+                        >
+                          <option value="">Selecciona una línea</option>
+                          {selectedCompany.lineas_atencion.map((line) => (
+                            <option key={line.id} value={line.id}>
+                              {line.descripcion}
+                            </option>
+                          ))}
+                        </Form.Control>
+                      </Form.Group>
+                      <div className="mt-3">
+                        <h5>
+                          <strong>Información de la Empresa</strong>
+                        </h5>
+                        <p>
+                          <strong>Dirección:</strong>{" "}
+                          {
+                            selectedCompany.datos_fiscales.domicilio_fiscal
+                              .calle
+                          }{" "}
+                          {
+                            selectedCompany.datos_fiscales.domicilio_fiscal
+                              .numero
+                          }{" "}
+                          -{" "}
+                          {
+                            selectedCompany.datos_fiscales.domicilio_fiscal
+                              .localidad
+                          }
+                        </p>
+                        <p>
+                          <strong>Horario de atención:</strong>{" "}
+                          {selectedCompany.calendario.hora_apertura} -{" "}
+                          {selectedCompany.calendario.hora_cierre}
+                        </p>
+                      </div>
+                    </>
                   )}
                 </Col>
 
-                <Col md={12} lg={4} className="text-center mb-4">
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={handleDateSelected}
-                    inline
-                    locale="es"
-                    minDate={new Date()} // Deshabilitar fechas anteriores al día actual
-                  />
-                </Col>
-
-                <Col md={12} lg={3}>
-                  <h5>Horarios Disponibles</h5>
-                  <ListGroup
-                    variant="flush"
-                    style={{ maxHeight: "200px", overflowY: "auto" }}
-                  >
-                    {availableTimes.map((turno) => (
-                      <ListGroup.Item
-                        key={turno.hora}
-                        onClick={() =>
-                          handleTimeSelected(turno.hora, turno.hashid)
-                        } // Pasar el hashid aquí
-                        active={selectedTime === turno.hora}
-                        action
-                      >
-                        {turno.hora}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </Col>
+                {selectedLine && (
+                  <Col md={12} lg={8} className="text-center mb-4">
+                    <TurnoCalendar
+                      events={events}
+                      onSelectEvent={handleSelectEvent}
+                      horaApertura={horaApertura}
+                      horaCierre={horaCierre}
+                      duracionTurnos={duracionTurnos}
+                      onWeekChange={handleWeekChange}
+                    />
+                  </Col>
+                )}
               </Row>
               {selectedTime && (
                 <div className="text-right">
                   <Button
                     variant="secondary"
                     onClick={handlePreseleccionarTurno}
-                    
                   >
                     Seleccionar Turno
                   </Button>
@@ -506,7 +535,7 @@ const ReservarTurno = () => {
           <Button
             variant="secondary"
             onClick={handleConfirmarTurno}
-            disabled={!selectedDate || !selectedTime}
+            disabled={!selectedTime}
           >
             Confirmar
           </Button>
