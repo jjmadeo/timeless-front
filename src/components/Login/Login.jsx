@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {  useAuth } from "../../lib/authProvider";
 import {
   Button,
@@ -19,7 +19,7 @@ const Login = () => {
   const [showToast, setShowToast] = useState(false); // Estado para mostrar/ocultar el toast
   const navigate = useNavigate();
   const auth = useAuth();
-
+  const location = useLocation();
 
   useEffect(() => {
     const registerSuccessMessage = localStorage.getItem("registerSuccess");
@@ -30,6 +30,15 @@ const Login = () => {
       localStorage.removeItem("registerSuccess"); // Eliminar el mensaje del almacenamiento local
     }
   }, []);
+
+  useEffect(() => {
+    if (location.state && location.state.message) {
+        const mensaje = location.state.message.data;
+
+        setToastMessage(`${mensaje}`);
+        setShowToast(true);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

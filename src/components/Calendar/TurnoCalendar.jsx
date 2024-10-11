@@ -18,15 +18,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const getWeekRange = (date) => {
-  const start = startOfWeek(date, { weekStartsOn: 1 }); // Lunes
-  const end = endOfWeek(date, { weekStartsOn: 1 }); // Domingo
-  return {
-    start: format(start, 'yyyy-MM-dd'),
-    end: format(end, 'yyyy-MM-dd')
-  };
-};
-
 const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duracionTurnos, onWeekChange }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [view, setView] = useState('week');

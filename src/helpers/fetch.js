@@ -117,6 +117,24 @@ export const getRequest = async (endpoint, token = null) => {
   return response.json();
 };
 
+export const deleteRequest = async (endpoint, token = null) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(environment.base + endpoint, {
+    method: 'DELETE',
+    headers,
+  });
+
+  return response.json();
+};
+
 export const loginRequest = async (email, password) => {
   try {
     const data = { correo: email, clave: password };
@@ -298,6 +316,17 @@ export const postCancelarTurno = async (payload, token) => {
     return response;
   } catch (error) {
     console.error('Error al registrar:', error);
+    throw error;
+  }
+};
+
+
+export const deleteUser = async (token) => {
+  try {
+    const response = await deleteRequest(`bajaUsuario`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al borrar usuario:', error);
     throw error;
   }
 };

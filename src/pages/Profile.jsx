@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, Container, Form, Nav, Row, Col, Toast, ToastContainer } from 'react-bootstrap';
+import { Button, Card, Container, Form, Nav, Row, Col, Toast, ToastContainer, Modal } from 'react-bootstrap';
 import { useAuth } from "../lib/authProvider";
 import '../pages/styles/Profile.scss'; // Importa el archivo de estilos
-import { actualizarPerfil } from '../helpers/fetch';
+import { actualizarPerfil, deleteUser } from '../helpers/fetch';
 
 const Profile = () => {
     const [profile, setProfile] = useState({
@@ -34,6 +34,7 @@ const Profile = () => {
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [activeSection, setActiveSection] = useState('datos_personales');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const navigate = useNavigate();
     const auth = useAuth();
 
@@ -66,14 +67,6 @@ const Profile = () => {
             });
         }
     }, [auth]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setProfile(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
 
     const handleNestedChange = (e, section) => {
         const { name, value } = e.target;
@@ -109,6 +102,32 @@ const Profile = () => {
             setShowToast(true);
         }
     };
+
+    const handleDeleteUser = async () => {
+        try {
+            const token = JSON.parse(localStorage.getItem("token")).token;
+            const response = await deleteUser(token);
+            
+            if (response.error == null) {
+                setToastMessage('Usuario eliminado exitosamente');
+                setError(false);
+                setShowToast(true);
+                auth.logout();
+                
+                navigate('/login', {
+                    state: { message: response},
+                  });
+            } else {
+                setToastMessage('Error al eliminar el usuario. Intente de nuevo.');
+                setError(false);
+                setShowToast(true);
+            }
+        } catch (err) {
+            setError(true);
+            setToastMessage(err.message || 'Error al eliminar el usuario. Intente de nuevo.');
+            setShowToast(true);
+        }
+    }
 
     const renderForm = () => {
         switch (activeSection) {
@@ -340,9 +359,9 @@ const Profile = () => {
               </Nav.Link>
               <Button
                 variant="danger"
-                onClick={() => setActiveSection("eliminar_cuenta")}
+                onClick={() => setShowConfirmModal(true)}
                 className={activeSection === "eliminar_cuenta" ? "active" : ""}
-                style={{ marginTop: "10px", marginLeft: "15px" }} // Agrega un margen superior para separar del resto
+                style={{ marginTop: "10px", marginLeft: "15px" }} 
               >
                 Eliminar Cuenta
               </Button>
@@ -365,6 +384,32 @@ const Profile = () => {
             <Toast.Body>{toastMessage}</Toast.Body>
           </Toast>
         </ToastContainer>
+
+        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmar Eliminación</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            ¿Está seguro de que desea eliminar su cuenta? Esta acción no se puede deshacer.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowConfirmModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setShowConfirmModal(false);
+                handleDeleteUser();
+              }}
+            >
+              Eliminar
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     );
 };
