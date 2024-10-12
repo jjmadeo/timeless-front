@@ -60,6 +60,7 @@ const ReservarTurno = () => {
   const [showNoResultsModal, setShowNoResultsModal] = useState(false);
   const [showNoTimesModal, setShowNoTimesModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const navigate = useNavigate();
 
@@ -195,22 +196,22 @@ const ReservarTurno = () => {
     setSelectedLine(null);
   };
 
-  const handleLineChange = (e) => {
+  const handleLineChange = (e, currentDate) => {
     const selectedLineId = parseInt(e.target.value, 10);
     const line = selectedCompany.lineas_atencion.find(
       (line) => line.id === selectedLineId
     );
     setSelectedLine(line);
-    handleDateSelected(new Date());
+    handleDateSelected(currentDate);
   };
-
   useEffect(() => {
     if (selectedLine) {
-      handleDateSelected(new Date());
+      handleDateSelected(selectedDate);
     }
   }, [selectedLine]);
 
   const handleDateSelected = async (date) => {
+    console.log(selectedLine);
     if (selectedLine) {
       const { start, end } = getWeekRange(date);
       try {
@@ -297,6 +298,7 @@ const ReservarTurno = () => {
 
   const handleWeekChange = (date) => {
     console.log("Nueva semana seleccionada:", date);
+    setSelectedDate(date);
     handleDateSelected(date);
   };
 
@@ -409,7 +411,7 @@ const ReservarTurno = () => {
                         <Form.Control
                           className="select"
                           as="select"
-                          onChange={handleLineChange}
+                          onChange={(e) => handleLineChange(e, selectedDate)}
                         >
                           <option value="">Selecciona una línea</option>
                           {selectedCompany.lineas_atencion.map((line) => (
