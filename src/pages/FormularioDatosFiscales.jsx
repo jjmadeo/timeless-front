@@ -19,7 +19,7 @@ const FormularioEmpresa = ({ empresa, handleNestedChange, handleSubmit }) => {
         </Col>
         <Col lg={4} md={6} sm={12}>
           <Form.Group controlId="nombre_fantasia">
-            <Form.Label>Nombre de Fantasía</Form.Label>
+            <Form.Label>Nombre de Empresa</Form.Label>
             <Form.Control
               type="text"
               name="nombre_fantasia"

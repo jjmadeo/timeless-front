@@ -12,6 +12,7 @@ import { useAuth } from "../lib/authProvider";
 import { actualizarEmpresa, getEmpresaById } from "../helpers/fetch";
 import FormularioEmpresa from "./FormularioDatosFiscales";
 import FormularioCalendario from "./FormularioCalendario";
+import FormularioLineasAtencion from "./FormularioLineasAtencion";
 import "../pages/styles/ModificarEmpresa.scss";
 
 const ModificarEmpresa = () => {
@@ -62,6 +63,11 @@ const ModificarEmpresa = () => {
         empresa.calendario.dias_laborales = typeof empresa.calendario.dias_laborales === 'string'
           ? empresa.calendario.dias_laborales.split(';').map(Number)
           : [];
+        empresa.calendario.ausencias = empresa.calendario.ausencias.map(ausencia => ({
+          ...ausencia,
+          desde: formatDate(ausencia.desde),
+          hasta: formatDate(ausencia.hasta),
+        }));
         setEmpresa(empresa);
       } catch (err) {
         console.error("Error al obtener la empresa:", err);
@@ -87,32 +93,67 @@ const ModificarEmpresa = () => {
     return dateTime.split(" ")[0];
   };
 
-  const handleNestedChange = (e, section, subSection = null, index = null) => {
+  const handleNestedChange = (e, section, index = null, field = null) => {
     const { name, value } = e.target;
-    if (subSection) {
+    
+    // Si hay un índice, significa que estamos en un array (como las ausencias)
+    if (index !== null && field) {
+      setEmpresa((prevState) => {
+        const updatedArray = [...prevState[section].ausencias];
+        updatedArray[index] = {
+          ...updatedArray[index],
+          [field]: value, // Actualiza el campo (desde, hasta o descripción)
+        };
+        return {
+          ...prevState,
+          [section]: {
+            ...prevState[section],
+            ausencias: updatedArray, // Reemplaza las ausencias actualizadas
+          },
+        };
+      });
+    } else {
+      // Esto es para cualquier otro campo fuera de arrays
       setEmpresa((prevState) => ({
         ...prevState,
         [section]: {
           ...prevState[section],
-          [subSection]: {
-            ...prevState[section][subSection],
-            [name]: value,
-          },
+          [name]: value,
         },
       }));
-    } else if (index !== null) {
+    }
+  };
+
+  // Nuevo handler para manejar fechas
+  const handleDateChange = (e, section, index = null, field = null) => {
+    const { name, value } = e.target;
+
+    // Validación específica para las fechas
+    if (index !== null && (field === 'desde' || field === 'hasta' || field === 'descripcion')) {
       setEmpresa((prevState) => {
-        const updatedArray = [...prevState[section]];
-        updatedArray[index] = {
-          ...updatedArray[index],
-          [name]: value,
-        };
-        return {
-          ...prevState,
-          [section]: updatedArray,
-        };
+          const updatedArray = [...prevState[section].ausencias];
+          const updatedField = {
+              ...updatedArray[index],
+              [field]: value, // Actualiza el campo según el valor recibido
+          };
+
+        /*
+        if (updatedField.desde && updatedField.hasta && updatedField.desde > updatedField.hasta) {
+          alert("La fecha 'Hasta' no puede ser anterior a la fecha 'Desde'");
+          return prevState; // No actualizamos el estado si hay un error
+        }*/
+
+        updatedArray[index] = updatedField;
+            return {
+                ...prevState,
+                [section]: {
+                    ...prevState[section],
+                    ausencias: updatedArray,
+                },
+            };
       });
     } else {
+      // Para cualquier otro campo (incluyendo las horas)
       setEmpresa((prevState) => ({
         ...prevState,
         [section]: {
@@ -140,41 +181,113 @@ const ModificarEmpresa = () => {
     });
   };
 
+  const handleAddAusencia = () => {
+    setEmpresa((prevData) => ({
+      ...prevData,
+      calendario: {
+        ...prevData.calendario,
+        ausencias: [
+          ...prevData.calendario.ausencias,
+          { id: null, desde: "", hasta: "", descripcion: "" },
+        ],
+      },
+    }));
+  };
+
+  const handleRemoveAusencia = (index) => {
+    setEmpresa((prevData) => {
+      const newAusencias = prevData.calendario.ausencias.filter(
+        (_, i) => i !== index
+      );
+      return {
+        ...prevData,
+        calendario: {
+          ...prevData.calendario,
+          ausencias: newAusencias,
+        },
+      };
+    });
+  };
+
+  const handleAddLineaAtencion = () => {
+    setEmpresa((prevData) => ({
+      ...prevData,
+      lineas_atencion: [
+        ...prevData.lineas_atencion,
+        { id: null, descripcion: "", duracion_turnos: "" },
+      ],
+    }));
+  };
+
+  const handleRemoveLineaAtencion = (index) => {
+    setEmpresa((prevData) => {
+      const newLineasAtencion = prevData.lineas_atencion.filter(
+        (_, i) => i !== index
+      );
+      return {
+        ...prevData,
+        lineas_atencion: newLineasAtencion,
+      };
+    });
+  };
+
+  const handleChangeLineaAtencion = (e, section, index, field) => {
+    const { value } = e.target;
+    setEmpresa((prevState) => {
+      const updatedArray = [...prevState[section]];
+      updatedArray[index] = {
+        ...updatedArray[index],
+        [field]: value,
+      };
+      return {
+        ...prevState,
+        [section]: updatedArray,
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formattedAusencias = empresa.calendario.ausencias.map((ausencia) => ({
-      ...ausencia,
-      desde: formatDate(ausencia.desde),
-      hasta: formatDate(ausencia.hasta),
-    }));
+
+    const formattedAusencias = empresa.calendario.ausencias.map((ausencia) => {
+        // Mantener el ID si ya existe, o enviarlo sin ID si es nueva
+        const { id, desde, hasta, descripcion } = ausencia;
+        return {
+            id: id || undefined, // No se envía si es nuevo (id será undefined)
+            desde: formatDate(desde),
+            hasta: formatDate(hasta),
+            descripcion,
+        };
+    });
 
     const formattedData = {
-      datos_fiscales: empresa.datos_fiscales,
-      calendario: {
-        id: empresa.calendario.id,
-        hora_apertura: formatTime(empresa.calendario.hora_apertura),
-        hora_cierre: formatTime(empresa.calendario.hora_cierre),
-        dias_laborales: Array.isArray(empresa.calendario.dias_laborales)
-          ? empresa.calendario.dias_laborales.join(";")
-          : empresa.calendario.dias_laborales,
-        ausencias: formattedAusencias,
-      },
-      lineas_atencion: empresa.lineas_atencion,
-      rubro: empresa.rubro,
+        datos_fiscales: empresa.datos_fiscales,
+        calendario: {
+            id: empresa.calendario.id,
+            hora_apertura: formatTime(empresa.calendario.hora_apertura),
+            hora_cierre: formatTime(empresa.calendario.hora_cierre),
+            dias_laborales: Array.isArray(empresa.calendario.dias_laborales)
+                ? empresa.calendario.dias_laborales.join(";")
+                : empresa.calendario.dias_laborales,
+            ausencias: formattedAusencias,
+        },
+        lineas_atencion: empresa.lineas_atencion,
+        rubro: empresa.rubro,
     };
 
     try {
-      const token = JSON.parse(localStorage.getItem("token")).token;
-      const response = await actualizarEmpresa(idEmpresa, formattedData, token);
-      setToastMessage("Empresa actualizada con éxito");
-      setError(false);
-      setShowToast(true);
+        const token = JSON.parse(localStorage.getItem("token")).token;
+        const response = await actualizarEmpresa(idEmpresa, formattedData, token);
+        setToastMessage("Empresa actualizada con éxito");
+        setError(false);
+        setShowToast(true);
     } catch (err) {
-      setToastMessage("Error al actualizar la empresa");
-      setError(true);
-      setShowToast(true);
+        setToastMessage("Error al actualizar la empresa");
+        setError(true);
+        setShowToast(true);
     }
-  };
+};
+
   const renderForm = () => {
     switch (activeSection) {
       case "datos_fiscales":
@@ -188,12 +301,24 @@ const ModificarEmpresa = () => {
       case "calendario":
         return (
           <FormularioCalendario
-            empresa={empresa}
-            handleChange={(e) => handleNestedChange(e, "calendario")}
-            handleToggleDiaLaboral={handleToggleDiaLaboral}
-            handleSubmit={handleSubmit}
+          empresa={empresa}
+          handleDateChange={handleDateChange} 
+          handleToggleDiaLaboral={handleToggleDiaLaboral}
+          handleAddAusencia={handleAddAusencia}
+          handleRemoveAusencia={handleRemoveAusencia}
+          handleSubmit={handleSubmit}
           />
         );
+        case "lineas_atencion":
+          return (
+            <FormularioLineasAtencion
+              empresa={empresa}
+              handleChangeLineaAtencion={handleChangeLineaAtencion}
+              handleAddLineaAtencion={handleAddLineaAtencion}
+              handleRemoveLineaAtencion={handleRemoveLineaAtencion}
+              handleSubmit={handleSubmit}
+            />
+          );
       default:
         return null;
     }
@@ -215,6 +340,12 @@ const ModificarEmpresa = () => {
               className={activeSection === "calendario" ? "active" : ""}
             >
               Modificar Calendario
+            </Nav.Link>
+            <Nav.Link
+              onClick={() => setActiveSection("lineas_atencion")}
+              className={activeSection === "lineas_atencion" ? "active" : ""}
+            >
+              Modificar Linea de atención
             </Nav.Link>
           </Nav>
         </Col>

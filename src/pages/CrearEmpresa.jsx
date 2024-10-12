@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Button,
@@ -10,7 +10,8 @@ import {
 } from "react-bootstrap";
 import { Stepper, Step } from "react-form-stepper";
 import { useNavigate } from "react-router-dom";
-import { empresaRequest } from "../helpers/fetch";
+import Select from "react-select";
+import { empresaRequest, getStaticData } from "../helpers/fetch";
 import "./styles/CrearEmpresa.scss";
 import { useAuth } from "../lib/authProvider";
 
@@ -46,6 +47,8 @@ const CrearEmpresa = () => {
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
+  const [rubros, setRubros] = useState([]);
+  const [selectedRubro, setSelectedRubro] = useState(null);
 
   const diasSemana = {
     "Lunes": 1,
@@ -56,6 +59,24 @@ const CrearEmpresa = () => {
     "Sábado": 6,
     "Domingo": 7
   };
+
+  const fetchRubros = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getStaticData(token);
+      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
+    } catch (error) {
+      console.error("Error al obtener los rubros:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRubros();
+  }, []);
+
+  useEffect(() => {
+    console.log(rubros);
+  }, [rubros]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +90,14 @@ const CrearEmpresa = () => {
       temp[keys[keys.length - 1]] = value;
       return data;
     });
+  };
+
+  const handleRubroChange = (selectedOption) => {
+    setSelectedRubro(selectedOption);
+    setFormData((prevData) => ({
+      ...prevData,
+      rubro: selectedOption ? selectedOption.value : "",
+    }));
   };
 
   const handleNext = () => {
@@ -438,11 +467,12 @@ const CrearEmpresa = () => {
                   <Col md={12}>
                     <Form.Group controlId="rubro">
                       <Form.Label>Rubro</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="rubro"
-                        value={formData.rubro}
-                        onChange={handleChange}
+                      <Select
+                        className="select-rubro"
+                        options={rubros}
+                        value={selectedRubro}
+                        onChange={handleRubroChange}
+                        isClearable
                       />
                     </Form.Group>
                   </Col>
