@@ -330,3 +330,13 @@ export const deleteUser = async (token) => {
     throw error;
   }
 };
+
+export const actualizarEmpresa = async (id, profile, token) => {
+  try {
+    const response = await putRequest(`empresa/${id}`, profile, token);
+    return response;
+  } catch (error) {
+    console.error('Error al actualizar la empresa:', error);
+    throw error;
+  }
+};

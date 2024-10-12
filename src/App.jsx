@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import HomeEmpresa from './pages/HomeEmpresa';
 import HomeGeneral from './pages/HomeGeneral';
+import ModificarEmpresa from './pages/ModificarEmpresa';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import ProvideAuth from './lib/authProvider';
@@ -28,6 +29,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/homeEmpresa" element={<HomeEmpresa />} />
             <Route path="/crearEmpresa" element={<CrearEmpresa />} />
+            <Route path="/modificarEmpresa" element={<ModificarEmpresa />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>

@@ -64,6 +64,9 @@ const NavigationBar = () => {
           <Nav className="ml-auto">
             {user ? (
               <>
+                {userProfile && userProfile.id_empresa !== null && (
+                <Nav.Link as={Link} to="/modificarEmpresa">Modificar Empresa</Nav.Link>
+                )}
                 <Nav.Link className="mx-2" as={Link} to="/profile">Perfil</Nav.Link>
                 <Button className="me-4" variant='primary' onClick={handleLogout}>Cerrar sesión</Button>
               </>
