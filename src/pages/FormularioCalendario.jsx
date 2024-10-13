@@ -125,7 +125,7 @@ const FormularioCalendario = ({
           </Col>
         </Row>
       ))}
-      <Button variant="primary" onClick={handleAddAusencia}>
+      <Button variant="secondary" onClick={handleAddAusencia}>
         Agregar Ausencia
       </Button>
       <Button variant="primary" type="submit" className="btn-save mt-4">

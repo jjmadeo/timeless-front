@@ -33,8 +33,8 @@ const CrearEmpresa = () => {
     },
     parametros: [],
     calendario: {
-      hora_apertura: "00:00:00",
-      hora_cierre: "00:00:00",
+      hora_apertura: "00:00",
+      hora_cierre: "00:00",
       dias_laborales: [],
       ausencias: [],
     },
@@ -96,7 +96,7 @@ const CrearEmpresa = () => {
     setSelectedRubro(selectedOption);
     setFormData((prevData) => ({
       ...prevData,
-      rubro: selectedOption ? selectedOption.value : "",
+      rubro: selectedOption ? selectedOption.label : "",
     }));
   };
 
@@ -469,6 +469,7 @@ const CrearEmpresa = () => {
                       <Form.Label>Rubro</Form.Label>
                       <Select
                         className="select-rubro"
+                        placeholder="Seleccione un rubro"
                         options={rubros}
                         value={selectedRubro}
                         onChange={handleRubroChange}

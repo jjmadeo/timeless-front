@@ -9,7 +9,7 @@ import {
   Nav,
 } from "react-bootstrap";
 import { useAuth } from "../lib/authProvider";
-import { actualizarEmpresa, getEmpresaById } from "../helpers/fetch";
+import { actualizarEmpresa, getEmpresaById, getStaticData } from "../helpers/fetch";
 import FormularioEmpresa from "./FormularioDatosFiscales";
 import FormularioCalendario from "./FormularioCalendario";
 import FormularioLineasAtencion from "./FormularioLineasAtencion";
@@ -45,7 +45,24 @@ const ModificarEmpresa = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState(false);
+  const [rubros, setRubros] = useState([]);
+  const [selectedRubro, setSelectedRubro] = useState(null);
   const auth = useAuth();
+
+  const fetchRubros = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getStaticData(token);
+      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
+    } catch (error) {
+      console.error("Error al obtener los rubros:", error);
+    }
+  };
+
+    // Cargar rubros al inicio
+    useEffect(() => {
+      fetchRubros();
+    }, []);
 
   useEffect(() => {
     if (auth.userProfile) {
@@ -69,6 +86,7 @@ const ModificarEmpresa = () => {
           hasta: formatDate(ausencia.hasta),
         }));
         setEmpresa(empresa);
+        setSelectedRubro({ value: empresa.rubro, label: empresa.rubro });
       } catch (err) {
         console.error("Error al obtener la empresa:", err);
       }
@@ -288,6 +306,16 @@ const ModificarEmpresa = () => {
     }
 };
 
+const handleRubroChange = (selectedOption) => {
+  console.log("Hola");
+  console.log('Rubro seleccionado:', selectedOption); // Verifica qué rubro está seleccionando
+  setSelectedRubro(selectedOption); // Actualiza el estado del rubro seleccionado
+  setEmpresa((prevState) => ({
+    ...prevState,
+    rubro: selectedOption ? selectedOption.label : null, // Asegúrate de que esto esté actualizando el estado de la empresa
+  }));
+};
+
   const renderForm = () => {
     switch (activeSection) {
       case "datos_fiscales":
@@ -317,6 +345,9 @@ const ModificarEmpresa = () => {
               handleAddLineaAtencion={handleAddLineaAtencion}
               handleRemoveLineaAtencion={handleRemoveLineaAtencion}
               handleSubmit={handleSubmit}
+              rubros={rubros} 
+              selectedRubro={selectedRubro}
+              handleRubroChange={handleRubroChange}
             />
           );
       default:

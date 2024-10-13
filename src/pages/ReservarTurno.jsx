@@ -30,6 +30,7 @@ import MapComponent from "../components/Map/Map";
 import "./styles/ReservarTurnos.scss";
 import TurnoCalendar from "../components/Calendar/TurnoCalendar";
 import { getWeekRange } from "../helpers/dateUtils";
+import Select from "react-select";
 
 const libraries = ["places"];
 
@@ -69,6 +70,10 @@ const ReservarTurno = () => {
     fetchRubros();
   }, []);
 
+  useEffect(() => {
+    console.log(rubros);
+  }, [rubros]);
+
   const resetForm = () => {
     setSelectedTime(null);
     setSelectedHashId("");
@@ -101,11 +106,12 @@ const ReservarTurno = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const res = await getStaticData(token);
-      setRubros(res.rubro);
+      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
     } catch (error) {
       console.error("Error al obtener los rubros:", error);
     }
   };
+  
 
   const handlePlaceChanged = () => {
     if (autocomplete !== null) {
@@ -137,9 +143,8 @@ const ReservarTurno = () => {
     }
   };
 
-  const handleRubroChange = (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex].text;
-    setSelectedRubro(selectedText);
+  const handleRubroChange = (selectedOption) => {
+    setSelectedRubro(selectedOption);
   };
 
   const handleUseCurrentLocationChange = (e) => {
@@ -147,6 +152,7 @@ const ReservarTurno = () => {
   };
 
   const handleSearch = async () => {
+    console.log(selectedRubro);
     if (!selectedRubro) {
       setToastMessage("Debes seleccionar un rubro antes de buscar.");
       setShowToast(true);
@@ -162,7 +168,7 @@ const ReservarTurno = () => {
     }
 
     if (useCurrentLocation && location) {
-      fetchCompanies(location.lat, location.lng, selectedRubro);
+      fetchCompanies(location.lat, location.lng, selectedRubro.label);
     } else {
       try {
         const response = await fetch(
@@ -174,7 +180,7 @@ const ReservarTurno = () => {
         if (data.results.length > 0) {
           const { lng, lat } = data.results[0].geometry.location;
           setLocation({ lng, lat });
-          fetchCompanies(lng, lat, selectedRubro);
+          fetchCompanies(lng, lat, selectedRubro.label);
         } else {
           console.error("No se encontraron resultados para la dirección.");
         }
@@ -311,18 +317,14 @@ const ReservarTurno = () => {
         <Col md={3} className="mb-4">
           <Form.Group>
             <Form.Label>Rubros</Form.Label>
-            <Form.Control
-              className="select"
-              as="select"
-              onChange={handleRubroChange}
-            >
-              <option value="">Selecciona un Rubro</option>
-              {rubros.map((rubro) => (
-                <option key={rubro.id} value={rubro.id}>
-                  {rubro.detalle}
-                </option>
-              ))}
-            </Form.Control>
+            <Select
+                        placeholder="Ingrese un rubro"
+                        className="select-rubro"
+                        options={rubros}
+                        value={selectedRubro}
+                        onChange={handleRubroChange}
+                        isClearable
+                      />
           </Form.Group>
         </Col>
 
