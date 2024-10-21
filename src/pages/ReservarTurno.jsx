@@ -45,6 +45,7 @@ const ReservarTurno = () => {
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedLine, setSelectedLine] = useState(null);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
 
   const [selectedHashid, setSelectedHashId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,6 +63,10 @@ const ReservarTurno = () => {
   const [showNoTimesModal, setShowNoTimesModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutos en segundos
+  const [isRed, setIsRed] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -214,9 +219,10 @@ const ReservarTurno = () => {
     if (selectedLine) {
       handleDateSelected(selectedDate);
     }
-  }, [selectedLine]);
+  }, [selectedLine, cancelConfirm]);
 
   const handleDateSelected = async (date) => {
+    
     console.log(selectedLine);
     if (selectedLine) {
       const { start, end } = getWeekRange(date);
@@ -236,7 +242,11 @@ const ReservarTurno = () => {
             const horariosDisponibles = res.data
               .filter((turno) => new Date(turno.fecha_hora) > now)
               .map((turno) => ({
-                title: "Disponible",
+                title: (
+                  <div className="circle-plus">
+                    <span>+</span>
+                  </div>
+                ),
                 start: new Date(turno.fecha_hora),
                 end: new Date(
                   new Date(turno.fecha_hora).getTime() + turno.duracion * 60000
@@ -245,6 +255,7 @@ const ReservarTurno = () => {
                 color: "#99cc99",
               }));
             setEvents(horariosDisponibles);
+            setCancelConfirm(false);
           }
         } else {
           if (res.error.status === "BAD_REQUEST") {
@@ -297,9 +308,50 @@ const ReservarTurno = () => {
     }
   }, [useCurrentLocation]);
 
-  const handleSelectEvent = (event) => {
+  const handleSelectEvent = async (event) => {
+    setIsRed(false);
+    setTimeLeft(120);
     setSelectedTime(event.start);
     setSelectedHashId(event.hashid);
+    
+  };
+
+  useEffect(() => {
+    if (selectedHashid) {
+      handlePreseleccionarTurno();
+    }
+  }, [selectedHashid]);
+
+    useEffect(() => {
+    let timer;
+    if (showConfirmModal && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setShowConfirmModal(false);
+      setError(true);
+      setToastMessage("No ha sido confirmado el turno");
+      setShowToast(true);
+      setCancelConfirm(true);
+      resetForm();
+    }
+    return () => clearInterval(timer);
+  }, [showConfirmModal, timeLeft]);
+
+  useEffect(() => {
+    if (timeLeft <= 10) {
+      const blinkTimer = setInterval(() => {
+        setIsRed((prev) => !prev);
+      }, 500);
+      return () => clearInterval(blinkTimer);
+    }
+  }, [timeLeft]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   const handleWeekChange = (date) => {
@@ -307,6 +359,8 @@ const ReservarTurno = () => {
     setSelectedDate(date);
     handleDateSelected(date);
   };
+
+
 
   return (
     <Container fluid>
@@ -466,16 +520,6 @@ const ReservarTurno = () => {
                   </Col>
                 )}
               </Row>
-              {selectedTime && (
-                <div className="text-right">
-                  <Button
-                    variant="secondary"
-                    onClick={handlePreseleccionarTurno}
-                  >
-                    Seleccionar Turno
-                  </Button>
-                </div>
-              )}
             </Card.Body>
           </Card>
         </Col>
@@ -515,32 +559,29 @@ const ReservarTurno = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
-        <Modal.Header closeButton>
+      <Modal show={showConfirmModal} >
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title>Confirmar Turno</Modal.Title>
+          <div style={{ color: isRed ? "red" : "black" }}>
+            {`${formatTime(timeLeft)}`}
+          </div>
         </Modal.Header>
         <Modal.Body>
-          Tiene 2 minutos para confirmar el turno <br></br>¿Desea confirmar su
-          turno?
+          ¿Desea confirmar su turno?
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="primary"
+          <Button variant="primary"
             onClick={() => {
               setShowConfirmModal(false);
               setError(true);
               setToastMessage("No ha sido confirmado el turno");
               setShowToast(true);
+              setCancelConfirm(true);
               resetForm();
-            }}
-          >
+            }}>
             Cancelar
           </Button>
-          <Button
-            variant="secondary"
-            onClick={handleConfirmarTurno}
-            disabled={!selectedTime}
-          >
+          <Button variant="secondary" onClick={handleConfirmarTurno}>
             Confirmar
           </Button>
         </Modal.Footer>

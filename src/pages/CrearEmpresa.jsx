@@ -29,6 +29,8 @@ const CrearEmpresa = () => {
         localidad: "",
         provincia: "",
         pais: "",
+        latitud: "",
+        longitud: "",
       },
     },
     parametros: [],
@@ -51,20 +53,20 @@ const CrearEmpresa = () => {
   const [selectedRubro, setSelectedRubro] = useState(null);
 
   const diasSemana = {
-    "Lunes": 1,
-    "Martes": 2,
-    "Miércoles": 3,
-    "Jueves": 4,
-    "Viernes": 5,
-    "Sábado": 6,
-    "Domingo": 7
+    Lunes: 1,
+    Martes: 2,
+    Miércoles: 3,
+    Jueves: 4,
+    Viernes: 5,
+    Sábado: 6,
+    Domingo: 7,
   };
 
   const fetchRubros = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const res = await getStaticData(token);
-      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
+      setRubros(res.rubro.map((r) => ({ value: r.id, label: r.detalle })));
     } catch (error) {
       console.error("Error al obtener los rubros:", error);
     }
@@ -118,6 +120,37 @@ const CrearEmpresa = () => {
       console.log(`Retrocediendo al paso: ${newStep}`);
       return newStep;
     });
+  };
+
+  const getCoordinates = async (direccion) => {
+    const apiKey = "AIzaSyAZ6rhipfSVaz-41Jn4vv-MgEDd87n4Zkc"; // Reemplaza con tu API Key de Google Maps
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+      direccion
+    )}&key=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "OK") {
+        const result = data.results.find(
+          (r) => r.geometry.location_type === "ROOFTOP"
+        );
+        if (result) {
+          const location = result.geometry.location;
+          return { lat: location.lat, lng: location.lng };
+        } else {
+          // Maneja casos donde no se encuentra un resultado preciso
+          console.warn("No se encontró un resultado preciso.");
+          return null;
+        }
+      } else {
+        throw new Error(data.status);
+      }
+    } catch (error) {
+      console.error("Error al obtener las coordenadas:", error);
+      return null;
+    }
   };
 
   const handleToggleDiaLaboral = (dia) => {
@@ -238,35 +271,63 @@ const CrearEmpresa = () => {
 
     const token = JSON.parse(localStorage.getItem("token")).token; // Obtener el token del localStorage
 
-    const diasLaboralesNumeros = formData.calendario.dias_laborales.map(dia => diasSemana[dia]);
+    const diasLaboralesNumeros = formData.calendario.dias_laborales.map(
+      (dia) => diasSemana[dia]
+    );
 
-    // Format hora_apertura and hora_cierre to include seconds
-    const formattedData = {
-      ...formData,
-      calendario: {
-        ...formData.calendario,
-        hora_apertura: `${formData.calendario.hora_apertura}:00`,
-        hora_cierre: `${formData.calendario.hora_cierre}:00`,
-        dias_laborales: diasLaboralesNumeros.join(";"),
-      },
-    };
+    const direccion = `${formData.datos_fiscales.domicilio_fiscal.calle} ${formData.datos_fiscales.domicilio_fiscal.numero}, ${formData.datos_fiscales.domicilio_fiscal.ciudad}`;
 
-    try {
-      const response = await empresaRequest(formattedData, token);
-      if (response.id) {
-        setToastMessage("La empresa se ha creado con exito");
-        setError(false);
+    const coordenadas = await getCoordinates(direccion);
+
+    if (coordenadas) {
+      console.log("Coordenadas obtenidas:", coordenadas);
+      // Actualizar formData con las coordenadas
+      const updatedFormData = {
+        ...formData,
+        datos_fiscales: {
+          ...formData.datos_fiscales,
+          domicilio_fiscal: {
+            ...formData.datos_fiscales.domicilio_fiscal,
+            latitud: parseFloat(coordenadas.lat),
+            longitud: parseFloat(coordenadas.lng),
+          },
+        },
+      };
+
+      // Formatear los datos para enviarlos al servidor
+      const formattedData = {
+        ...updatedFormData,
+        calendario: {
+          ...updatedFormData.calendario,
+          hora_apertura: `${updatedFormData.calendario.hora_apertura}:00`,
+          hora_cierre: `${updatedFormData.calendario.hora_cierre}:00`,
+          dias_laborales: diasLaboralesNumeros.join(";"),
+        },
+      };
+
+      // Enviar los datos al servidor
+      try {
+        const response = await empresaRequest(formattedData, token);
+        if (response.id) {
+          setToastMessage("La empresa se ha creado con éxito");
+          setError(false);
+          setShowToast(true);
+          auth.fetchUserProfile();
+          navigate("/HomeEmpresa");
+        } else {
+          throw new Error(response.error.title);
+        }
+      } catch (err) {
+        setError(true);
+        setToastMessage(
+          err.message || "Error al crear la empresa. Verifique sus datos."
+        );
         setShowToast(true);
-        auth.fetchUserProfile();
-        navigate("/HomeEmpresa");
-      } else {
-        throw new Error(response.error.title);
       }
-    } catch (err) {
+    } else {
+      console.error("No se pudieron obtener las coordenadas.");
       setError(true);
-      setToastMessage(
-        err.message || "Error al crear la empresa. Verifique sus datos."
-      );
+      setToastMessage("No se pudieron obtener las coordenadas.");
       setShowToast(true);
     }
   };
