@@ -308,6 +308,16 @@ export const getEmpresaById = async (id,token) => {
   }
 };
 
+export const postCancelarPreseleccionarTurno = async (payload, token) => {
+  try {
+    
+    const response = await postRequestWithParams('CancelpreselccionarTurno', payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
 
 export const postCancelarTurno = async (payload, token) => {
   try {

@@ -133,18 +133,11 @@ const CrearEmpresa = () => {
       const data = await response.json();
 
       if (data.status === "OK") {
-        const result = data.results.find(
-          (r) => r.geometry.location_type === "ROOFTOP"
-        );
-        if (result) {
+          const result = data.results[0];
           const location = result.geometry.location;
           return { lat: location.lat, lng: location.lng };
-        } else {
-          // Maneja casos donde no se encuentra un resultado preciso
-          console.warn("No se encontró un resultado preciso.");
-          return null;
-        }
-      } else {
+        } 
+      else {
         throw new Error(data.status);
       }
     } catch (error) {
@@ -275,7 +268,7 @@ const CrearEmpresa = () => {
       (dia) => diasSemana[dia]
     );
 
-    const direccion = `${formData.datos_fiscales.domicilio_fiscal.calle} ${formData.datos_fiscales.domicilio_fiscal.numero}, ${formData.datos_fiscales.domicilio_fiscal.ciudad}`;
+    const direccion = `${formData.datos_fiscales.domicilio_fiscal.calle} ${formData.datos_fiscales.domicilio_fiscal.numero}, ${formData.datos_fiscales.domicilio_fiscal.ciudad}, ${formData.datos_fiscales.domicilio_fiscal.localidad}`;
 
     const coordenadas = await getCoordinates(direccion);
 

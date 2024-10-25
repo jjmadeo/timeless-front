@@ -23,6 +23,7 @@ import {
   getTurnosDisponibles,
   postPreseleccionarTurno,
   postConfirmarTurno,
+  postCancelarPreseleccionarTurno,
 } from "../helpers/fetch";
 import { useLocation, useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
@@ -360,7 +361,31 @@ const ReservarTurno = () => {
     handleDateSelected(date);
   };
 
+  const handleCancelPreseleccionarTurno = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const response = await postCancelarPreseleccionarTurno( selectedHashid, token);
 
+      if (response.error == null) {
+          console.log("Turno cancelado:", response);
+          setToastMessage(response.mensaje);
+          setShowToast(true);
+          setError(true);
+          setShowToast(true);
+          setCancelConfirm(true);
+          resetForm();
+          setShowConfirmModal(false);
+      } else {
+          console.error("Error al cancelar turno:", response.message);
+          setToastMessage(response.message);
+          setShowToast(true);
+      }
+  } catch (error) {
+      console.error("Error al cancelar turno:", error.message);
+      setToastMessage(error.message);
+      setShowToast(true);
+  }
+};
 
   return (
     <Container fluid>
@@ -572,12 +597,9 @@ const ReservarTurno = () => {
         <Modal.Footer>
           <Button variant="primary"
             onClick={() => {
-              setShowConfirmModal(false);
-              setError(true);
-              setToastMessage("No ha sido confirmado el turno");
-              setShowToast(true);
-              setCancelConfirm(true);
-              resetForm();
+
+              handleCancelPreseleccionarTurno();
+              
             }}>
             Cancelar
           </Button>
