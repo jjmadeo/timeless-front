@@ -54,14 +54,14 @@ const Schedule = () => {
             title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
             details: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido} - ${event.usuario_turno_owner.email} - ${event.usuario_turno_owner.telefono}`,
             start: parseISO(event.fecha_hora),
-            end: new Date(parseISO(event.fecha_hora).getTime() + event.duracion * 60000),
+            end: parseISO(event.fechafin),
             color: '#ff9999', // Rojo suave
             hashid: event.hashid,
             ...event.usuario_turno_owner,
           })),
           ...res.hoy.map(event => {
             const start = parseISO(event.fecha_hora);
-            const end = new Date(start.getTime() + event.duracion * 60000);
+            const end =  parseISO(event.fechafin);
             const color = isBefore(end, now) ? '#ff9999' : '#99ccff'; // Rojo suave para pasados, azul suave para futuros
             return {
               title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
@@ -77,7 +77,7 @@ const Schedule = () => {
             title: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido}`,
             details: `${event.usuario_turno_owner.nombre} ${event.usuario_turno_owner.apellido} - ${event.usuario_turno_owner.email} - ${event.usuario_turno_owner.telefono}`,
             start: parseISO(event.fecha_hora),
-            end: new Date(parseISO(event.fecha_hora).getTime() + event.duracion * 60000),
+            end: parseISO(event.fechafin),
             color: '#99cc99', // Verde suave
             hashid: event.hashid,
             ...event.usuario_turno_owner,
@@ -151,7 +151,7 @@ const Schedule = () => {
 
   return (
     <div>
-      <h1>Reserva tu Turno</h1>
+      <h1>Estas son tus agendas</h1>
       
       <Dropdown onSelect={handleSelectAgenda}>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
