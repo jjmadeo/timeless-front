@@ -86,6 +86,21 @@
   margin: 9px auto; /* Centrar el círculo */
 }
 
+.circle-plus-ref {
+  display: inline-flex;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #99cc99; /* Color de fondo del círculo */
+  color: #ffffff; /* Color del texto */
+  font-size: 14px; /* Tamaño de la fuente */
+  font-weight: bold; /* Peso de la fuente */
+
+}
+
 
 .rbc-event{
   background-color: $creamy ; /* Color de fondo del círculo */

@@ -528,6 +528,13 @@ const ReservarTurno = () => {
                           {selectedCompany.calendario.hora_apertura} -{" "}
                           {selectedCompany.calendario.hora_cierre}
                         </p>
+                        <div className="mt-3">
+                          <p>
+                            Haga clic en {" "}
+                            <span className="circle-plus-ref">+</span> para
+                            seleccionar un turno disponible.
+                          </p>
+                        </div>
                       </div>
                     </>
                   )}
