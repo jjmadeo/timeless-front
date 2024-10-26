@@ -68,7 +68,6 @@ const ReservarTurno = () => {
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutos en segundos
   const [isRed, setIsRed] = useState(false);
 
-
   const navigate = useNavigate();
 
   // Cargar rubros al inicio
@@ -112,12 +111,11 @@ const ReservarTurno = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const res = await getStaticData(token);
-      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
+      setRubros(res.rubro.map((r) => ({ value: r.id, label: r.detalle })));
     } catch (error) {
       console.error("Error al obtener los rubros:", error);
     }
   };
-  
 
   const handlePlaceChanged = () => {
     if (autocomplete !== null) {
@@ -223,7 +221,6 @@ const ReservarTurno = () => {
   }, [selectedLine, cancelConfirm]);
 
   const handleDateSelected = async (date) => {
-    
     console.log(selectedLine);
     if (selectedLine) {
       const { start, end } = getWeekRange(date);
@@ -314,7 +311,6 @@ const ReservarTurno = () => {
     setTimeLeft(120);
     setSelectedTime(event.start);
     setSelectedHashId(event.hashid);
-    
   };
 
   useEffect(() => {
@@ -323,7 +319,7 @@ const ReservarTurno = () => {
     }
   }, [selectedHashid]);
 
-    useEffect(() => {
+  useEffect(() => {
     let timer;
     if (showConfirmModal && timeLeft > 0) {
       timer = setInterval(() => {
@@ -364,28 +360,31 @@ const ReservarTurno = () => {
   const handleCancelPreseleccionarTurno = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
-      const response = await postCancelarPreseleccionarTurno( selectedHashid, token);
+      const response = await postCancelarPreseleccionarTurno(
+        selectedHashid,
+        token
+      );
 
       if (response.error == null) {
-          console.log("Turno cancelado:", response);
-          setToastMessage(response.mensaje);
-          setShowToast(true);
-          setError(true);
-          setShowToast(true);
-          setCancelConfirm(true);
-          resetForm();
-          setShowConfirmModal(false);
+        console.log("Turno cancelado:", response);
+        setToastMessage(response.mensaje);
+        setShowToast(true);
+        setError(true);
+        setShowToast(true);
+        setCancelConfirm(true);
+        resetForm();
+        setShowConfirmModal(false);
       } else {
-          console.error("Error al cancelar turno:", response.message);
-          setToastMessage(response.message);
-          setShowToast(true);
+        console.error("Error al cancelar turno:", response.message);
+        setToastMessage(response.message);
+        setShowToast(true);
       }
-  } catch (error) {
+    } catch (error) {
       console.error("Error al cancelar turno:", error.message);
       setToastMessage(error.message);
       setShowToast(true);
-  }
-};
+    }
+  };
 
   return (
     <Container fluid>
@@ -397,13 +396,13 @@ const ReservarTurno = () => {
           <Form.Group>
             <Form.Label>Rubros</Form.Label>
             <Select
-                        placeholder="Ingrese un rubro"
-                        className="select-rubro"
-                        options={rubros}
-                        value={selectedRubro}
-                        onChange={handleRubroChange}
-                        isClearable
-                      />
+              placeholder="Ingrese un rubro"
+              className="select-rubro"
+              options={rubros}
+              value={selectedRubro}
+              onChange={handleRubroChange}
+              isClearable
+            />
           </Form.Group>
         </Col>
 
@@ -495,11 +494,13 @@ const ReservarTurno = () => {
                           onChange={(e) => handleLineChange(e, selectedDate)}
                         >
                           <option value="">Selecciona una línea</option>
-                          {selectedCompany.lineas_atencion.map((line) => (
-                            <option key={line.id} value={line.id}>
-                              {line.descripcion}
-                            </option>
-                          ))}
+                          {selectedCompany.lineas_atencion
+                            .filter((line) => line.activo) // Filtrar solo las líneas activas
+                            .map((line) => (
+                              <option key={line.id} value={line.id}>
+                                {line.descripcion}
+                              </option>
+                            ))}
                         </Form.Control>
                       </Form.Group>
                       <div className="mt-3">
@@ -584,23 +585,21 @@ const ReservarTurno = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Modal show={showConfirmModal} >
+      <Modal show={showConfirmModal}>
         <Modal.Header className="d-flex justify-content-between">
           <Modal.Title>Confirmar Turno</Modal.Title>
           <div style={{ color: isRed ? "red" : "black" }}>
             {`${formatTime(timeLeft)}`}
           </div>
         </Modal.Header>
-        <Modal.Body>
-          ¿Desea confirmar su turno?
-        </Modal.Body>
+        <Modal.Body>¿Desea confirmar su turno?</Modal.Body>
         <Modal.Footer>
-          <Button variant="primary"
+          <Button
+            variant="primary"
             onClick={() => {
-
               handleCancelPreseleccionarTurno();
-              
-            }}>
+            }}
+          >
             Cancelar
           </Button>
           <Button variant="secondary" onClick={handleConfirmarTurno}>

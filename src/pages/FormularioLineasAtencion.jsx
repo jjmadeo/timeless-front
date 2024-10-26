@@ -1,16 +1,13 @@
 import React from "react";
-import { Form, Row, Col, Button } from "react-bootstrap";
+import { Form, Row, Col, Button, Dropdown } from "react-bootstrap";
 import Select from "react-select"; // Asegúrate de importar el componente Select
 
 const FormularioLineasAtencion = ({
   empresa,
   handleChangeLineaAtencion,
   handleAddLineaAtencion,
-  handleRemoveLineaAtencion,
+  handleToggleLineaAtencion,
   handleSubmit,
-  handleRubroChange, // Añadir el manejador para el cambio de rubro
-  rubros, // Añadir las opciones de rubro
-  selectedRubro, // Añadir el valor seleccionado del rubro
 }) => {
   return (
     <Form onSubmit={handleSubmit}>
@@ -55,31 +52,33 @@ const FormularioLineasAtencion = ({
               />
             </Form.Group>
           </Col>
-          <Col md={12} className="text-right">
-            <Button
-              variant="danger"
-              className="btn-quitar"
-              onClick={() => handleRemoveLineaAtencion(index)}
-            >
-              Quitar
-            </Button>
+          <Col md={6}>
+            <Form.Group controlId={`activo-${index}`}>
+              <Form.Label>Estado</Form.Label>
+              <Dropdown>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                  {linea.activo ? "Habilitado" : "Deshabilitado"}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    onClick={() => handleToggleLineaAtencion(index, true)}
+                  >
+                    Habilitar
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => handleToggleLineaAtencion(index, false)}
+                  >
+                    Deshabilitar
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Form.Group>
           </Col>
         </Row>
       ))}
       <Button variant="secondary" onClick={handleAddLineaAtencion}>
         Agregar Línea de Atención
       </Button>
-      {/*<Form.Group controlId="rubro" className="mt-4">
-        <Form.Label>Rubro</Form.Label>
-        <Select
-          className="select-rubro"
-          placeholder="Seleccione un rubro"
-          options={rubros}
-          value={selectedRubro}
-          onChange={handleRubroChange} // Cambia aquí a handleRubroChange
-          isClearable
-        />
-      </Form.Group>*/}
       <Button variant="primary" type="submit" className="btn-save mt-4">
         Guardar Cambios
       </Button>

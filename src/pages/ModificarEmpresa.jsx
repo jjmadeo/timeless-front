@@ -54,26 +54,10 @@ const ModificarEmpresa = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [error, setError] = useState(false);
-  const [rubros, setRubros] = useState([]);
-  const [selectedRubro, setSelectedRubro] = useState(null);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [ausenciaToDelete, setAusenciaToDelete] = useState(null);
   const auth = useAuth();
 
-  const fetchRubros = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem("token")).token;
-      const res = await getStaticData(token);
-      setRubros(res.rubro.map((r) => ({ value: r.id, label: r.detalle })));
-    } catch (error) {
-      console.error("Error al obtener los rubros:", error);
-    }
-  };
-
-  // Cargar rubros al inicio
-  useEffect(() => {
-    fetchRubros();
-  }, []);
 
   useEffect(() => {
     if (auth.userProfile) {
@@ -104,7 +88,7 @@ const ModificarEmpresa = () => {
           })
         );
         setEmpresa(empresa);
-        setSelectedRubro({ value: empresa.rubro, label: empresa.rubro });
+
       } catch (err) {
         console.error("Error al obtener la empresa:", err);
       }
@@ -113,10 +97,6 @@ const ModificarEmpresa = () => {
       fetchEmpresaData();
     }
   }, [idEmpresa]);
-
-  useEffect(() => {
-    console.log(empresa);
-  }, [empresa]);
 
   const formatTime = (time) => {
     if (time.length === 5) {
@@ -132,24 +112,22 @@ const ModificarEmpresa = () => {
   const handleNestedChange = (e, section, index = null, field = null) => {
     const { name, value } = e.target;
 
-
     if (index !== null && field) {
       setEmpresa((prevState) => {
         const updatedArray = [...prevState[section].ausencias];
         updatedArray[index] = {
           ...updatedArray[index],
-          [field]: value, 
+          [field]: value,
         };
         return {
           ...prevState,
           [section]: {
             ...prevState[section],
-            ausencias: updatedArray, 
+            ausencias: updatedArray,
           },
         };
       });
     } else {
-
       setEmpresa((prevState) => ({
         ...prevState,
         [section]: {
@@ -160,11 +138,8 @@ const ModificarEmpresa = () => {
     }
   };
 
-  // Nuevo handler para manejar fechas
   const handleDateChange = (e, section, index = null, field = null) => {
     const { name, value } = e.target;
-
-    // Validación específica para las fechas
     if (
       index !== null &&
       (field === "desde" || field === "hasta" || field === "descripcion")
@@ -173,7 +148,7 @@ const ModificarEmpresa = () => {
         const updatedArray = [...prevState[section].ausencias];
         const updatedField = {
           ...updatedArray[index],
-          [field]: value, // Actualiza el campo según el valor recibido
+          [field]: value, 
         };
 
         /*
@@ -192,7 +167,6 @@ const ModificarEmpresa = () => {
         };
       });
     } else {
-      // Para cualquier otro campo (incluyendo las horas)
       setEmpresa((prevState) => ({
         ...prevState,
         [section]: {
@@ -237,7 +211,7 @@ const ModificarEmpresa = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const response = await deleteAusencia(ausenciaToDelete.id, token);
-  
+
       if (response.status === 200) {
         setEmpresa((prevData) => {
           const newAusencias = prevData.calendario.ausencias.filter(
@@ -303,14 +277,16 @@ const ModificarEmpresa = () => {
     }));
   };
 
-  const handleRemoveLineaAtencion = (index) => {
-    setEmpresa((prevData) => {
-      const newLineasAtencion = prevData.lineas_atencion.filter(
-        (_, i) => i !== index
-      );
+  const handleToggleLineaAtencion = (index, activo) => {
+    setEmpresa((prevState) => {
+      const updatedArray = [...prevState.lineas_atencion];
+      updatedArray[index] = {
+        ...updatedArray[index],
+        activo,
+      };
       return {
-        ...prevData,
-        lineas_atencion: newLineasAtencion,
+        ...prevState,
+        lineas_atencion: updatedArray,
       };
     });
   };
@@ -331,7 +307,6 @@ const ModificarEmpresa = () => {
   };
 
   const handleRemoveNewAusencia = () => {
-
     setEmpresa((prevData) => {
       const newAusencias = prevData.calendario.ausencias.filter(
         (_, i) => i !== prevData.calendario.ausencias.length - 1
@@ -344,16 +319,15 @@ const ModificarEmpresa = () => {
         },
       };
     });
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formattedAusencias = empresa.calendario.ausencias.map((ausencia) => {
-      // Mantener el ID si ya existe, o enviarlo sin ID si es nueva
       const { id, desde, hasta, descripcion } = ausencia;
       return {
-        id: id || undefined, // No se envía si es nuevo (id será undefined)
+        id: id || undefined, 
         desde: formatDate(desde),
         hasta: formatDate(hasta),
         descripcion,
@@ -388,16 +362,6 @@ const ModificarEmpresa = () => {
     }
   };
 
-  const handleRubroChange = (selectedOption) => {
-    console.log("Hola");
-    console.log("Rubro seleccionado:", selectedOption); // Verifica qué rubro está seleccionando
-    setSelectedRubro(selectedOption); // Actualiza el estado del rubro seleccionado
-    setEmpresa((prevState) => ({
-      ...prevState,
-      rubro: selectedOption ? selectedOption.label : null, // Asegúrate de que esto esté actualizando el estado de la empresa
-    }));
-  };
-
   const renderForm = () => {
     switch (activeSection) {
       case "datos_fiscales":
@@ -423,27 +387,24 @@ const ModificarEmpresa = () => {
             empresa={empresa}
             handleChangeLineaAtencion={handleChangeLineaAtencion}
             handleAddLineaAtencion={handleAddLineaAtencion}
-            handleRemoveLineaAtencion={handleRemoveLineaAtencion}
+            handleToggleLineaAtencion={handleToggleLineaAtencion}
             handleSubmit={handleSubmit}
-            rubros={rubros}
-            selectedRubro={selectedRubro}
-            handleRubroChange={handleRubroChange}
           />
         );
-        case "ausencias":
-          return (
-            <FormularioAusencias
-              empresa={empresa}
-              handleDateChange={handleDateChange}
-              handleAddAusencia={handleAddAusencia}
+      case "ausencias":
+        return (
+          <FormularioAusencias
+            empresa={empresa}
+            handleDateChange={handleDateChange}
+            handleAddAusencia={handleAddAusencia}
             handleRemoveAusencia={(index, id) => {
               setAusenciaToDelete({ index, id });
               setShowConfirmDeleteModal(true);
             }}
             handleAddAusenciaAPI={handleAddAusenciaAPI}
             handleRemoveNewAusencia={handleRemoveNewAusencia}
-            />
-          );
+          />
+        );
       default:
         return null;
     }
