@@ -108,6 +108,8 @@ export const postRequestWithParams3 = async (endpoint, data, token = null) => {
     body: JSON.stringify(data),  // Enviar el payload como JSON en el cuerpo
   });
 
+
+  console.log('Respuesta:', response);
   if (!response.ok) {
     throw new Error(`Error en la solicitud: ${response.statusText}`);
   }
@@ -466,6 +468,16 @@ export const postAusencia = async (idEmpresa, payload, token) => {
     return response;
   } catch (error) {
     console.error('Error al agregar ausencia:', error);
+    throw error;
+  }
+};
+
+export const postCambiarContrasena = async ( payload, token) => {
+  try {
+    const response = await postRequestWithParams3(`changePassword`, payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error);
     throw error;
   }
 };

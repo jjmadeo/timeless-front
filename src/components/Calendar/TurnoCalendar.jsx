@@ -59,7 +59,6 @@ const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duraci
         timeslots={1} // Número de divisiones por cada "step"
         min={minTime}
         max={maxTime}
-        
         messages={{
           next: 'Sig.',
           previous: 'Ant.',
