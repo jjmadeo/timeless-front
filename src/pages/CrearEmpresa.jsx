@@ -306,7 +306,7 @@ const CrearEmpresa = () => {
           setError(false);
           setShowToast(true);
           auth.fetchUserProfile();
-          navigate("/HomeEmpresa");
+          navigate("/schedule");
         } else {
           throw new Error(response.error.title);
         }

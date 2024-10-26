@@ -57,7 +57,7 @@ const Login = () => {
         if (res.userInfo.ROL === "[ROLE_GENERAL]") {
           navigate("/HomeGeneral");
         } else if (res.userInfo.ROL === "[ROLE_EMPRESA]") {
-          navigate("/HomeEmpresa");
+          navigate("/schedule");
         } else {
           navigate("/default-dashboard");
         }

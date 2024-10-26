@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import HomeEmpresa from './pages/HomeEmpresa';
 import HomeGeneral from './pages/HomeGeneral';
 import ModificarEmpresa from './pages/ModificarEmpresa';
 import Navbar from './components/Navbar/Navbar';
@@ -29,7 +28,6 @@ function App() {
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/login" element={<Login />} />
             <Route path="/resetPassword" element={<ResetPassword />} />
-            <Route path="/homeEmpresa" element={<HomeEmpresa />} />
             <Route path="/crearEmpresa" element={<CrearEmpresa />} />
             <Route path="/modificarEmpresa" element={<ModificarEmpresa />} />
             <Route path="/register" element={<Register />} />

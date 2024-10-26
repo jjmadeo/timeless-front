@@ -7,7 +7,6 @@ import "./Navbar.scss";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 
-
 const NavigationBar = () => {
   const { user, logout } = useContext(AuthContext);
   const [userProfile, setUserProfile] = useState(null);
@@ -63,102 +62,99 @@ const NavigationBar = () => {
 
   return (
     <>
-    <Navbar bg="primary" expand="md">
-      <Container>
-        <Navbar.Brand as={Link} to="/landingPage">
-          <img
-            src={logo}
-            alt="Logo"
-            width="30"
-            height="50"
-            className="d-inline-block me-3"
-          />{" "}
-          timeless
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {!user ? (
-              <>{/* Links for non-authenticated users */}</>
-            ) : userRole === "[ROLE_GENERAL]" ? (
-              <>
-                <Nav.Link as={Link} to="/homeGeneral">
-                  Mis turnos
-                </Nav.Link>
-                <Nav.Link as={Link} to="/reservarTurno">
-                  Reservar turno
-                </Nav.Link>
-              </>
-            ) : userRole === "[ROLE_EMPRESA]" ? (
-              <>
-                <Nav.Link as={Link} to="/homeEmpresa">
-                  Inicio
-                </Nav.Link>
-                <Nav.Link as={Link} to="/schedule">
-                  Agendas
-                </Nav.Link>
-                {userProfile && userProfile.id_empresa === null && (
-                  <Button variant="secondary" as={Link} to="/crearEmpresa">
-                    Crear Empresa
-                  </Button>
-                )}
-              </>
-            ) : null}
-          </Nav>
-          <Nav className="ml-auto">
-            {user ? (
-              <>
-                {userProfile && userProfile.id_empresa !== null && (
-                  <Nav.Link as={Link} to="/modificarEmpresa">
-                    Modificar Empresa
+      <Navbar bg="primary" expand="md">
+        <Container>
+          <Navbar.Brand as={Link} to="/landingPage">
+            <img
+              src={logo}
+              alt="Logo"
+              width="30"
+              height="50"
+              className="d-inline-block me-3"
+            />{" "}
+            timeless
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              {!user ? (
+                <>{/* Links for non-authenticated users */}</>
+              ) : userRole === "[ROLE_GENERAL]" ? (
+                <>
+                  <Nav.Link as={Link} to="/homeGeneral">
+                    Mis turnos
                   </Nav.Link>
-                )}
-                <Nav.Link className="mx-2" as={Link} to="/profile">
-                  Perfil
-                </Nav.Link>
-                <Button
-                  className="me-4"
-                  variant="primary"
-                  onClick={handleLogout}
-                >
-                  Cerrar sesión
-                </Button>
-              </>
-            ) : (
-              <>
-                <Nav.Link className="mx-2" href="#services">
-                  Beneficios
-                </Nav.Link>
-                <Nav.Link className="mx-2" href="#features">
-                  Ventajas
-                </Nav.Link>
-                <Nav.Link className="mx-2" href="#showcase">
-                  Comunidad
-                </Nav.Link>
-                <Button
-                  className="me-4"
-                  variant="primary"
-                  as={Link}
-                  to="/login"
-                >
-                  Iniciar sesión
-                </Button>
-                <Button variant="secondary" as={Link} to="/register">
-                  Registrarse
-                </Button>
-              </>
-            )}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-    <FontAwesomeIcon
-    icon={faArrowUp}
-    onClick={handleScrollTop}
-    className="scrollTop"
-    style={{ display: showScroll ? 'flex' : 'none' }}
-  />
-  </>
+                  <Nav.Link as={Link} to="/reservarTurno">
+                    Reservar turno
+                  </Nav.Link>
+                </>
+              ) : userRole === "[ROLE_EMPRESA]" ? (
+                <>
+                  <Nav.Link as={Link} to="/schedule">
+                    Agendas
+                  </Nav.Link>
+                  {userProfile && userProfile.id_empresa === null && (
+                    <Button variant="secondary" as={Link} to="/crearEmpresa">
+                      Crear Empresa
+                    </Button>
+                  )}
+                </>
+              ) : null}
+            </Nav>
+            <Nav className="ml-auto">
+              {user ? (
+                <>
+                  {userProfile && userProfile.id_empresa !== null && (
+                    <Nav.Link as={Link} to="/modificarEmpresa">
+                      Modificar Empresa
+                    </Nav.Link>
+                  )}
+                  <Nav.Link className="mx-2" as={Link} to="/profile">
+                    Perfil
+                  </Nav.Link>
+                  <Button
+                    className="me-4"
+                    variant="primary"
+                    onClick={handleLogout}
+                  >
+                    Cerrar sesión
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Nav.Link className="mx-2" href="#services">
+                    Beneficios
+                  </Nav.Link>
+                  <Nav.Link className="mx-2" href="#features">
+                    Ventajas
+                  </Nav.Link>
+                  <Nav.Link className="mx-2" href="#showcase">
+                    Comunidad
+                  </Nav.Link>
+                  <Button
+                    className="me-4"
+                    variant="primary"
+                    as={Link}
+                    to="/login"
+                  >
+                    Iniciar sesión
+                  </Button>
+                  <Button variant="secondary" as={Link} to="/register">
+                    Registrarse
+                  </Button>
+                </>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+      <FontAwesomeIcon
+        icon={faArrowUp}
+        onClick={handleScrollTop}
+        className="scrollTop"
+        style={{ display: showScroll ? 'flex' : 'none' }}
+      />
+    </>
   );
 };
 
