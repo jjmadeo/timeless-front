@@ -9,6 +9,7 @@ import {
   Toast,
   ToastContainer,
 } from "react-bootstrap";
+import { postResetPass } from "../../helpers/fetch";
 import "./Login.scss";
 
 const Login = () => {
@@ -68,6 +69,29 @@ const Login = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    try {
+      const payload = { email };
+      
+      const response = await postResetPass(payload);
+      if(response.status === 200) {
+      setToastMessage("Se ha enviado un correo para restablecer la contraseña.");
+      setError(false);
+      setShowToast(true);
+      }else{
+        setToastMessage("Debe ingresar un correo válido.");
+        setError(true);
+        setShowToast(true);
+      }
+    } catch (error) {
+      setError(true);
+      setToastMessage(
+        error.message || "Error al enviar la solicitud de restablecimiento de contraseña."
+      );
+      setShowToast(true);
+    }
+  };
+
   return (
     <Container className="login-container">
       <img
@@ -102,6 +126,11 @@ const Login = () => {
               Iniciar sesión
             </Button>
           </Form>
+          <div className="mt-3 text-center">
+            <a href="#" onClick={() => navigate("/resetPassword")}>
+              Recuperar contraseña
+            </a>
+          </div>
         </Card.Body>
       </Card>
       {/* Toast container */}

@@ -7,13 +7,22 @@ import {
   ToastContainer,
   Toast,
   Nav,
+  Modal,
+  Button,
 } from "react-bootstrap";
 import { useAuth } from "../lib/authProvider";
-import { actualizarEmpresa, getEmpresaById, getStaticData } from "../helpers/fetch";
+import {
+  actualizarEmpresa,
+  getEmpresaById,
+  getStaticData,
+  deleteAusencia,
+  postAusencia,
+} from "../helpers/fetch";
 import FormularioEmpresa from "./FormularioDatosFiscales";
 import FormularioCalendario from "./FormularioCalendario";
 import FormularioLineasAtencion from "./FormularioLineasAtencion";
 import "../pages/styles/ModificarEmpresa.scss";
+import FormularioAusencias from "./FormularioAusencias";
 
 const ModificarEmpresa = () => {
   const [empresa, setEmpresa] = useState({
@@ -47,22 +56,24 @@ const ModificarEmpresa = () => {
   const [error, setError] = useState(false);
   const [rubros, setRubros] = useState([]);
   const [selectedRubro, setSelectedRubro] = useState(null);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [ausenciaToDelete, setAusenciaToDelete] = useState(null);
   const auth = useAuth();
 
   const fetchRubros = async () => {
     try {
       const token = JSON.parse(localStorage.getItem("token")).token;
       const res = await getStaticData(token);
-      setRubros(res.rubro.map(r => ({ value: r.id, label: r.detalle })));
+      setRubros(res.rubro.map((r) => ({ value: r.id, label: r.detalle })));
     } catch (error) {
       console.error("Error al obtener los rubros:", error);
     }
   };
 
-    // Cargar rubros al inicio
-    useEffect(() => {
-      fetchRubros();
-    }, []);
+  // Cargar rubros al inicio
+  useEffect(() => {
+    fetchRubros();
+  }, []);
 
   useEffect(() => {
     if (auth.userProfile) {
@@ -75,16 +86,23 @@ const ModificarEmpresa = () => {
       try {
         const token = JSON.parse(localStorage.getItem("token")).token;
         const empresa = await getEmpresaById(idEmpresa, token);
-        empresa.calendario.hora_apertura = formatTime(empresa.calendario.hora_apertura);
-        empresa.calendario.hora_cierre = formatTime(empresa.calendario.hora_cierre);
-        empresa.calendario.dias_laborales = typeof empresa.calendario.dias_laborales === 'string'
-          ? empresa.calendario.dias_laborales.split(';').map(Number)
-          : [];
-        empresa.calendario.ausencias = empresa.calendario.ausencias.map(ausencia => ({
-          ...ausencia,
-          desde: formatDate(ausencia.desde),
-          hasta: formatDate(ausencia.hasta),
-        }));
+        empresa.calendario.hora_apertura = formatTime(
+          empresa.calendario.hora_apertura
+        );
+        empresa.calendario.hora_cierre = formatTime(
+          empresa.calendario.hora_cierre
+        );
+        empresa.calendario.dias_laborales =
+          typeof empresa.calendario.dias_laborales === "string"
+            ? empresa.calendario.dias_laborales.split(";").map(Number)
+            : [];
+        empresa.calendario.ausencias = empresa.calendario.ausencias.map(
+          (ausencia) => ({
+            ...ausencia,
+            desde: formatDate(ausencia.desde),
+            hasta: formatDate(ausencia.hasta),
+          })
+        );
         setEmpresa(empresa);
         setSelectedRubro({ value: empresa.rubro, label: empresa.rubro });
       } catch (err) {
@@ -113,25 +131,25 @@ const ModificarEmpresa = () => {
 
   const handleNestedChange = (e, section, index = null, field = null) => {
     const { name, value } = e.target;
-    
-    // Si hay un índice, significa que estamos en un array (como las ausencias)
+
+
     if (index !== null && field) {
       setEmpresa((prevState) => {
         const updatedArray = [...prevState[section].ausencias];
         updatedArray[index] = {
           ...updatedArray[index],
-          [field]: value, // Actualiza el campo (desde, hasta o descripción)
+          [field]: value, 
         };
         return {
           ...prevState,
           [section]: {
             ...prevState[section],
-            ausencias: updatedArray, // Reemplaza las ausencias actualizadas
+            ausencias: updatedArray, 
           },
         };
       });
     } else {
-      // Esto es para cualquier otro campo fuera de arrays
+
       setEmpresa((prevState) => ({
         ...prevState,
         [section]: {
@@ -147,13 +165,16 @@ const ModificarEmpresa = () => {
     const { name, value } = e.target;
 
     // Validación específica para las fechas
-    if (index !== null && (field === 'desde' || field === 'hasta' || field === 'descripcion')) {
+    if (
+      index !== null &&
+      (field === "desde" || field === "hasta" || field === "descripcion")
+    ) {
       setEmpresa((prevState) => {
-          const updatedArray = [...prevState[section].ausencias];
-          const updatedField = {
-              ...updatedArray[index],
-              [field]: value, // Actualiza el campo según el valor recibido
-          };
+        const updatedArray = [...prevState[section].ausencias];
+        const updatedField = {
+          ...updatedArray[index],
+          [field]: value, // Actualiza el campo según el valor recibido
+        };
 
         /*
         if (updatedField.desde && updatedField.hasta && updatedField.desde > updatedField.hasta) {
@@ -162,13 +183,13 @@ const ModificarEmpresa = () => {
         }*/
 
         updatedArray[index] = updatedField;
-            return {
-                ...prevState,
-                [section]: {
-                    ...prevState[section],
-                    ausencias: updatedArray,
-                },
-            };
+        return {
+          ...prevState,
+          [section]: {
+            ...prevState[section],
+            ausencias: updatedArray,
+          },
+        };
       });
     } else {
       // Para cualquier otro campo (incluyendo las horas)
@@ -212,19 +233,64 @@ const ModificarEmpresa = () => {
     }));
   };
 
-  const handleRemoveAusencia = (index) => {
-    setEmpresa((prevData) => {
-      const newAusencias = prevData.calendario.ausencias.filter(
-        (_, i) => i !== index
+  const handleRemoveAusencia = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const response = await deleteAusencia(ausenciaToDelete.id, token);
+  
+      if (response.status === 200) {
+        setEmpresa((prevData) => {
+          const newAusencias = prevData.calendario.ausencias.filter(
+            (_, i) => i !== ausenciaToDelete.index
+          );
+          return {
+            ...prevData,
+            calendario: {
+              ...prevData.calendario,
+              ausencias: newAusencias,
+            },
+          };
+        });
+        setToastMessage("Ausencia eliminada con éxito");
+        setError(false);
+      } else {
+        setToastMessage("Error inesperado al eliminar la ausencia");
+        setError(true);
+      }
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage("Error al eliminar la ausencia");
+      setError(true);
+      setShowToast(true);
+    } finally {
+      setShowConfirmDeleteModal(false);
+    }
+  };
+
+  const handleAddAusenciaAPI = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const ausenciasToAdd = empresa.calendario.ausencias.filter(
+        (ausencia) => !ausencia.id
       );
-      return {
-        ...prevData,
-        calendario: {
-          ...prevData.calendario,
-          ausencias: newAusencias,
-        },
-      };
-    });
+
+      for (const ausencia of ausenciasToAdd) {
+        const payload = {
+          desde: ausencia.desde,
+          hasta: ausencia.hasta,
+          descripcion: ausencia.descripcion,
+        };
+        await postAusencia(idEmpresa, payload, token);
+      }
+
+      setToastMessage("Ausencias agregadas con éxito");
+      setError(false);
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage("Error al agregar ausencias");
+      setError(true);
+      setShowToast(true);
+    }
   };
 
   const handleAddLineaAtencion = () => {
@@ -264,57 +330,73 @@ const ModificarEmpresa = () => {
     });
   };
 
+  const handleRemoveNewAusencia = () => {
+
+    setEmpresa((prevData) => {
+      const newAusencias = prevData.calendario.ausencias.filter(
+        (_, i) => i !== prevData.calendario.ausencias.length - 1
+      );
+      return {
+        ...prevData,
+        calendario: {
+          ...prevData.calendario,
+          ausencias: newAusencias,
+        },
+      };
+    });
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formattedAusencias = empresa.calendario.ausencias.map((ausencia) => {
-        // Mantener el ID si ya existe, o enviarlo sin ID si es nueva
-        const { id, desde, hasta, descripcion } = ausencia;
-        return {
-            id: id || undefined, // No se envía si es nuevo (id será undefined)
-            desde: formatDate(desde),
-            hasta: formatDate(hasta),
-            descripcion,
-        };
+      // Mantener el ID si ya existe, o enviarlo sin ID si es nueva
+      const { id, desde, hasta, descripcion } = ausencia;
+      return {
+        id: id || undefined, // No se envía si es nuevo (id será undefined)
+        desde: formatDate(desde),
+        hasta: formatDate(hasta),
+        descripcion,
+      };
     });
 
     const formattedData = {
-        datos_fiscales: empresa.datos_fiscales,
-        calendario: {
-            id: empresa.calendario.id,
-            hora_apertura: formatTime(empresa.calendario.hora_apertura),
-            hora_cierre: formatTime(empresa.calendario.hora_cierre),
-            dias_laborales: Array.isArray(empresa.calendario.dias_laborales)
-                ? empresa.calendario.dias_laborales.join(";")
-                : empresa.calendario.dias_laborales,
-            ausencias: formattedAusencias,
-        },
-        lineas_atencion: empresa.lineas_atencion,
-        rubro: empresa.rubro,
+      datos_fiscales: empresa.datos_fiscales,
+      calendario: {
+        id: empresa.calendario.id,
+        hora_apertura: formatTime(empresa.calendario.hora_apertura),
+        hora_cierre: formatTime(empresa.calendario.hora_cierre),
+        dias_laborales: Array.isArray(empresa.calendario.dias_laborales)
+          ? empresa.calendario.dias_laborales.join(";")
+          : empresa.calendario.dias_laborales,
+        ausencias: formattedAusencias,
+      },
+      lineas_atencion: empresa.lineas_atencion,
+      rubro: empresa.rubro,
     };
 
     try {
-        const token = JSON.parse(localStorage.getItem("token")).token;
-        const response = await actualizarEmpresa(idEmpresa, formattedData, token);
-        setToastMessage("Empresa actualizada con éxito");
-        setError(false);
-        setShowToast(true);
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const response = await actualizarEmpresa(idEmpresa, formattedData, token);
+      setToastMessage("Empresa actualizada con éxito");
+      setError(false);
+      setShowToast(true);
     } catch (err) {
-        setToastMessage("Error al actualizar la empresa");
-        setError(true);
-        setShowToast(true);
+      setToastMessage("Error al actualizar la empresa");
+      setError(true);
+      setShowToast(true);
     }
-};
+  };
 
-const handleRubroChange = (selectedOption) => {
-  console.log("Hola");
-  console.log('Rubro seleccionado:', selectedOption); // Verifica qué rubro está seleccionando
-  setSelectedRubro(selectedOption); // Actualiza el estado del rubro seleccionado
-  setEmpresa((prevState) => ({
-    ...prevState,
-    rubro: selectedOption ? selectedOption.label : null, // Asegúrate de que esto esté actualizando el estado de la empresa
-  }));
-};
+  const handleRubroChange = (selectedOption) => {
+    console.log("Hola");
+    console.log("Rubro seleccionado:", selectedOption); // Verifica qué rubro está seleccionando
+    setSelectedRubro(selectedOption); // Actualiza el estado del rubro seleccionado
+    setEmpresa((prevState) => ({
+      ...prevState,
+      rubro: selectedOption ? selectedOption.label : null, // Asegúrate de que esto esté actualizando el estado de la empresa
+    }));
+  };
 
   const renderForm = () => {
     switch (activeSection) {
@@ -329,25 +411,37 @@ const handleRubroChange = (selectedOption) => {
       case "calendario":
         return (
           <FormularioCalendario
-          empresa={empresa}
-          handleDateChange={handleDateChange} 
-          handleToggleDiaLaboral={handleToggleDiaLaboral}
-          handleAddAusencia={handleAddAusencia}
-          handleRemoveAusencia={handleRemoveAusencia}
-          handleSubmit={handleSubmit}
+            empresa={empresa}
+            handleDateChange={handleDateChange}
+            handleToggleDiaLaboral={handleToggleDiaLaboral}
+            handleSubmit={handleSubmit}
           />
         );
-        case "lineas_atencion":
+      case "lineas_atencion":
+        return (
+          <FormularioLineasAtencion
+            empresa={empresa}
+            handleChangeLineaAtencion={handleChangeLineaAtencion}
+            handleAddLineaAtencion={handleAddLineaAtencion}
+            handleRemoveLineaAtencion={handleRemoveLineaAtencion}
+            handleSubmit={handleSubmit}
+            rubros={rubros}
+            selectedRubro={selectedRubro}
+            handleRubroChange={handleRubroChange}
+          />
+        );
+        case "ausencias":
           return (
-            <FormularioLineasAtencion
+            <FormularioAusencias
               empresa={empresa}
-              handleChangeLineaAtencion={handleChangeLineaAtencion}
-              handleAddLineaAtencion={handleAddLineaAtencion}
-              handleRemoveLineaAtencion={handleRemoveLineaAtencion}
-              handleSubmit={handleSubmit}
-              rubros={rubros} 
-              selectedRubro={selectedRubro}
-              handleRubroChange={handleRubroChange}
+              handleDateChange={handleDateChange}
+              handleAddAusencia={handleAddAusencia}
+            handleRemoveAusencia={(index, id) => {
+              setAusenciaToDelete({ index, id });
+              setShowConfirmDeleteModal(true);
+            }}
+            handleAddAusenciaAPI={handleAddAusenciaAPI}
+            handleRemoveNewAusencia={handleRemoveNewAusencia}
             />
           );
       default:
@@ -378,6 +472,12 @@ const handleRubroChange = (selectedOption) => {
             >
               Modificar Linea de atención
             </Nav.Link>
+            <Nav.Link
+              onClick={() => setActiveSection("ausencias")}
+              className={activeSection === "ausencias" ? "active" : ""}
+            >
+              Modificar Ausencias
+            </Nav.Link>
           </Nav>
         </Col>
         <Col md={9}>
@@ -397,6 +497,28 @@ const handleRubroChange = (selectedOption) => {
           <Toast.Body>{toastMessage}</Toast.Body>
         </Toast>
       </ToastContainer>
+      <Modal
+        show={showConfirmDeleteModal}
+        onHide={() => setShowConfirmDeleteModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que deseas eliminar esta ausencia?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowConfirmDeleteModal(false)}
+          >
+            Cerrar
+          </Button>
+          <Button variant="danger" onClick={handleRemoveAusencia}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -58,6 +58,69 @@ export const postRequestWithParams = async (endpoint, data, token = null) => {
   return response.json();
 };
 
+export const postRequestWithParams2 = async (endpoint, data, token = null) => {
+  console.log('API Base URL:', environment.base);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const params = new URLSearchParams(data).toString();
+
+  const cleanedParams = params.replace(/=+$/, '');
+  
+  const url = `${environment.base + endpoint}/?${cleanedParams}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+  });
+  const status = response.status;  // Capturar el status de la respuesta
+  const text = await response.text();  // Obtener el texto de la respuesta
+
+  // Retornar un objeto con el status y el texto de la respuesta
+  return {
+    status,
+    text,
+  };
+};
+
+export const postRequestWithParams3 = async (endpoint, data, token = null) => {
+  console.log('API Base URL:', environment.base);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const url = `${environment.base + endpoint}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),  // Enviar el payload como JSON en el cuerpo
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error en la solicitud: ${response.statusText}`);
+  }
+
+  // Manejo de respuesta JSON o texto
+  const contentType = response.headers.get('Content-Type');
+  if (contentType && contentType.includes('application/json')) {
+    return await response.json();
+  } else {
+    return await response.text();
+  }
+};
+
 export const putRequest = async (endpoint, data, token = null) => {
   console.log('API Base URL:', environment.base);
   const headers = {
@@ -133,6 +196,31 @@ export const deleteRequest = async (endpoint, token = null) => {
   });
 
   return response.json();
+};
+
+export const deleteRequest2 = async (endpoint, token = null) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(environment.base + endpoint, {
+    method: 'DELETE',
+    headers,
+  });
+
+  const status = response.status;  // Capturar el status de la respuesta
+  const text = await response.text();  // Obtener el texto de la respuesta
+
+  // Retornar un objeto con el status y el texto de la respuesta
+  return {
+    status,
+    text,
+  };
 };
 
 export const loginRequest = async (email, password) => {
@@ -347,6 +435,37 @@ export const actualizarEmpresa = async (id, profile, token) => {
     return response;
   } catch (error) {
     console.error('Error al actualizar la empresa:', error);
+    throw error;
+  }
+};
+
+export const postResetPass = async (payload) => {
+  try {
+    
+    const response = await postRequestWithParams2('resetPassword',payload);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
+
+export const deleteAusencia = async (id, token) => {
+  try {
+    const response = await deleteRequest2(`ausencia/${id}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al borrar usuario:', error);
+    throw error;
+  }
+};
+
+export const postAusencia = async (idEmpresa, payload, token) => {
+  try {
+    const response = await postRequestWithParams3(`ausencia/${idEmpresa}`, payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al agregar ausencia:', error);
     throw error;
   }
 };

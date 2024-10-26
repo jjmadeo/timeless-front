@@ -7,6 +7,7 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import ProvideAuth from './lib/authProvider';
 import Login from './components/Login/Login';
+import ResetPassword from './components/Login/ResetPassword';
 import './styles/style.scss';
 import Schedule from './pages/Schedule';
 import Register from './components/register/Register';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/homeGeneral" element={<HomeGeneral />} />
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/resetPassword" element={<ResetPassword />} />
             <Route path="/homeEmpresa" element={<HomeEmpresa />} />
             <Route path="/crearEmpresa" element={<CrearEmpresa />} />
             <Route path="/modificarEmpresa" element={<ModificarEmpresa />} />
