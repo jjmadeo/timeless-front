@@ -12,10 +12,11 @@ import {
 } from "react-bootstrap";
 import "./styles/HomeGeneral.scss";
 import { getTurnosByUser, postCancelarTurno } from "../helpers/fetch";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import MapComponent from "../components/Map/Map";
+import { useAuth } from "../lib/authProvider";
 
 const AppointmentCard = ({ appointment, color, data, onViewMap, onCancel }) => {
     const formattedDate = format(new Date(appointment.fecha_hora), "EEEE dd 'de' MMMM", { locale: es });
@@ -68,6 +69,14 @@ const HomeGeneral = () => {
     const [showConfirmCancelModal, setShowConfirmCancelModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const location = useLocation();
+    const navigate = useNavigate();
+    const auth = useAuth();
+  
+    useEffect(() => {
+      if (!auth.user || auth.user.ROL !== "[ROLE_GENERAL]") {
+        navigate("/login");
+      }
+    }, [auth, navigate]);
 
     const fetchGetTurnos = async () => {
         try {

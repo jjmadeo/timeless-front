@@ -23,6 +23,7 @@ import FormularioCalendario from "./FormularioCalendario";
 import FormularioLineasAtencion from "./FormularioLineasAtencion";
 import "../pages/styles/ModificarEmpresa.scss";
 import FormularioAusencias from "./FormularioAusencias";
+import { useNavigate } from "react-router-dom";
 
 const ModificarEmpresa = () => {
   const [empresa, setEmpresa] = useState({
@@ -57,6 +58,13 @@ const ModificarEmpresa = () => {
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [ausenciaToDelete, setAusenciaToDelete] = useState(null);
   const auth = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
 
 
   useEffect(() => {
@@ -97,6 +105,34 @@ const ModificarEmpresa = () => {
       fetchEmpresaData();
     }
   }, [idEmpresa]);
+
+  const fetchEmpresaData = async () => {
+      try {
+        const token = JSON.parse(localStorage.getItem("token")).token;
+        const empresa = await getEmpresaById(idEmpresa, token);
+        empresa.calendario.hora_apertura = formatTime(
+          empresa.calendario.hora_apertura
+        );
+        empresa.calendario.hora_cierre = formatTime(
+          empresa.calendario.hora_cierre
+        );
+        empresa.calendario.dias_laborales =
+          typeof empresa.calendario.dias_laborales === "string"
+            ? empresa.calendario.dias_laborales.split(";").map(Number)
+            : [];
+        empresa.calendario.ausencias = empresa.calendario.ausencias.map(
+          (ausencia) => ({
+            ...ausencia,
+            desde: formatDate(ausencia.desde),
+            hasta: formatDate(ausencia.hasta),
+          })
+        );
+        setEmpresa(empresa);
+
+      } catch (err) {
+        console.error("Error al obtener la empresa:", err);
+      }
+    };
 
   const formatTime = (time) => {
     if (time.length === 5) {
@@ -260,6 +296,7 @@ const ModificarEmpresa = () => {
       setToastMessage("Ausencias agregadas con éxito");
       setError(false);
       setShowToast(true);
+      fetchEmpresaData();
     } catch (error) {
       setToastMessage("Error al agregar ausencias");
       setError(true);

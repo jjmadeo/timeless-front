@@ -52,6 +52,12 @@ const CrearEmpresa = () => {
   const [rubros, setRubros] = useState([]);
   const [selectedRubro, setSelectedRubro] = useState(null);
 
+  useEffect(() => {
+    if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
+
   const diasSemana = {
     Lunes: 1,
     Martes: 2,

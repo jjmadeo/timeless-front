@@ -52,6 +52,13 @@ const Profile = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
+
+  useEffect(() => {
+    if (!auth.user || (auth.user.ROL !== "[ROLE_EMPRESA]" && auth.user.ROL !== "[ROLE_GENERAL]")) {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
+
   const [passwords, setPasswords] = useState({
     old_password: "",
     new_password: "",
@@ -133,7 +140,7 @@ const Profile = () => {
           confirm_password: "",
         });
       } else {
-        setToastMessage("Error al cambiar la contraseña. Intente de nuevo.");
+        setToastMessage(response.text);
         setError(true);
         setShowToast(true);
       }

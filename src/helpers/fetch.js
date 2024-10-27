@@ -109,18 +109,14 @@ export const postRequestWithParams3 = async (endpoint, data, token = null) => {
   });
 
 
-  console.log('Respuesta:', response);
-  if (!response.ok) {
-    throw new Error(`Error en la solicitud: ${response.statusText}`);
-  }
+  const status = response.status;  // Capturar el status de la respuesta
+  const text = await response.text();  // Obtener el texto de la respuesta
 
-  // Manejo de respuesta JSON o texto
-  const contentType = response.headers.get('Content-Type');
-  if (contentType && contentType.includes('application/json')) {
-    return await response.json();
-  } else {
-    return await response.text();
-  }
+  // Retornar un objeto con el status y el texto de la respuesta
+  return {
+    status,
+    text,
+  };
 };
 
 export const putRequest = async (endpoint, data, token = null) => {
@@ -474,7 +470,7 @@ export const postAusencia = async (idEmpresa, payload, token) => {
 
 export const postCambiarContrasena = async ( payload, token) => {
   try {
-    const response = await postRequestWithParams3(`changePassword`, payload, token);
+    const response = await postRequestWithParams3(`changePassword/`, payload, token);
     return response;
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);

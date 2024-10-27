@@ -4,6 +4,7 @@ import { Modal, Dropdown, Button, Toast, ToastContainer } from 'react-bootstrap'
 import { parseISO, isBefore, isToday } from 'date-fns';
 import { getTurnosByLineaId, getEmpresaById, postCancelarTurno } from "../helpers/fetch";
 import { useAuth } from '../lib/authProvider';
+import { useNavigate } from 'react-router-dom';
 
 const Schedule = () => {
   const [showModal, setShowModal] = useState(false);
@@ -21,6 +22,13 @@ const Schedule = () => {
   const [horaCierre, setHoraCierre] = useState('18:00');
   const [duracionTurnos, setDuracionTurnos] = useState(30); // Valor por defecto
   const auth = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
 
   useEffect(() => {
     if (auth.userProfile) {

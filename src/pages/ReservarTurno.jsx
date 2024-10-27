@@ -32,6 +32,7 @@ import "./styles/ReservarTurnos.scss";
 import TurnoCalendar from "../components/Calendar/TurnoCalendar";
 import { getWeekRange } from "../helpers/dateUtils";
 import Select from "react-select";
+import { useAuth } from "../lib/authProvider";
 
 const libraries = ["places"];
 
@@ -67,8 +68,16 @@ const ReservarTurno = () => {
 
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutos en segundos
   const [isRed, setIsRed] = useState(false);
-
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  useEffect(() => {
+    if (!auth.user || auth.user.ROL !== "[ROLE_GENERAL]") {
+      navigate("/login");
+    }
+  }, [auth, navigate]);
+
+  
 
   // Cargar rubros al inicio
   useEffect(() => {
