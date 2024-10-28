@@ -69,29 +69,6 @@ const Login = () => {
     }
   };
 
-  const handleResetPassword = async () => {
-    try {
-      const payload = { email };
-      
-      const response = await postResetPass(payload);
-      if(response.status === 200) {
-      setToastMessage("Se ha enviado un correo para restablecer la contraseña.");
-      setError(false);
-      setShowToast(true);
-      }else{
-        setToastMessage("Debe ingresar un correo válido.");
-        setError(true);
-        setShowToast(true);
-      }
-    } catch (error) {
-      setError(true);
-      setToastMessage(
-        error.message || "Error al enviar la solicitud de restablecimiento de contraseña."
-      );
-      setShowToast(true);
-    }
-  };
-
   return (
     <Container className="login-container">
       <img

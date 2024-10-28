@@ -54,9 +54,17 @@ const Profile = () => {
   const auth = useAuth();
 
   useEffect(() => {
-    if (!auth.user || (auth.user.ROL !== "[ROLE_EMPRESA]" && auth.user.ROL !== "[ROLE_GENERAL]")) {
-      navigate("/login");
-    }
+    const timeoutId = setTimeout(() => {
+      if (
+        !auth.user ||
+        (auth.user.ROL !== "[ROLE_EMPRESA]" &&
+          auth.user.ROL !== "[ROLE_GENERAL]")
+      ) {
+        navigate("/login");
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, [auth, navigate]);
 
   const [passwords, setPasswords] = useState({

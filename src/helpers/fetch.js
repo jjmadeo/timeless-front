@@ -417,6 +417,18 @@ export const postCancelarTurno = async (payload, token) => {
 };
 
 
+export const postCancelarTurnoUsuario = async (payload, token) => {
+  try {
+    
+    const response = await postRequestWithParams('CancelarTurnoUsuario', payload, token);
+    return response;
+  } catch (error) {
+    console.error('Error al registrar:', error);
+    throw error;
+  }
+};
+
+
 export const deleteUser = async (token) => {
   try {
     const response = await deleteRequest(`bajaUsuario`, token);

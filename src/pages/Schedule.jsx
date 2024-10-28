@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AppCalendar from '../components/Calendar/Calendar';
 import { Modal, Dropdown, Button, Toast, ToastContainer } from 'react-bootstrap';
 import { parseISO, isBefore, isToday } from 'date-fns';
-import { getTurnosByLineaId, getEmpresaById, postCancelarTurno } from "../helpers/fetch";
+import { getTurnosByLineaId, getEmpresaById, postCancelarTurnoUsuario } from "../helpers/fetch";
 import { useAuth } from '../lib/authProvider';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,9 +25,13 @@ const Schedule = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
-      navigate("/login");
-    }
+    const timeoutId = setTimeout(() => {
+      if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
+        navigate("/login");
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, [auth, navigate]);
 
   useEffect(() => {
@@ -132,7 +136,7 @@ const Schedule = () => {
       const token = JSON.parse(localStorage.getItem("token")).token;
 
       // Cancelar turno con la API usando el hashid del evento seleccionado
-      const response = await postCancelarTurno(selectedEvent.hashid, token);
+      const response = await postCancelarTurnoUsuario(selectedEvent.hashid, token);
 
       if (response.error == null) {
         console.log("Turno cancelado:", response);
