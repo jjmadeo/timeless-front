@@ -34,7 +34,7 @@ const ResetPassword = () => {
   return (
     <Container className="login-container">
       <img
-        src="../../../public/assets/Login.png"
+        src="/assets/01-login.png"
         className="background-image"
         alt="Background"
       />

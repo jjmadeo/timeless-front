@@ -54,7 +54,7 @@ const ConfirmEliminarTurno = () => {
   return (
     <Container className="confirm-eliminar-turno-container">
       <img
-        src="../../../public/assets/Login.png"
+        src="/assets/01-login.png"
         className="background-image"
         alt="Background"
       />
@@ -67,7 +67,7 @@ const ConfirmEliminarTurno = () => {
       ) : (
         <Alert variant={error ? "danger" : "success"}>{message}</Alert>
       )}
-      <Button variant="primary" onClick={() => navigate("/landingPage")}>
+      <Button variant="primary" onClick={() => navigate("/")}>
         Volver al inicio
       </Button>
     </Container>

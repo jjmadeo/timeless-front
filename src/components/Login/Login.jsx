@@ -71,11 +71,11 @@ const Login = () => {
 
   return (
     <Container className="login-container">
-      <img
-        src="../../../public/assets/Login.png"
-        className="background-image"
-        alt="Background"
-      />
+        <img
+          src="/assets/01-login.png"
+          className="background-image"
+          alt="Background"
+        />
       <Card className="login-card">
         <Card.Body>
           <Form onSubmit={handleSubmit}>

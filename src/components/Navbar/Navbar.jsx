@@ -55,7 +55,7 @@ const NavigationBar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/landingPage");
+    navigate("/");
   };
 
   const userRole = user ? decodeToken(localStorage.getItem("token")).ROL : null;
@@ -64,7 +64,7 @@ const NavigationBar = () => {
     <>
       <Navbar bg="primary" expand="md">
         <Container>
-          <Navbar.Brand as={Link} to="/landingPage">
+          <Navbar.Brand as={Link} to="/">
             <img
               src={logo}
               alt="Logo"
