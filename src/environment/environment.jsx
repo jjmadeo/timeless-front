@@ -8,11 +8,11 @@ const LOCAL_ENV = {
   // DEV
   const DEV_ENV = {
     environment: 'DEV',
-    base: 'http://10.32.11.96/api',
+    base: 'https://service.time-less.online/v1/timeless/',
   };
   
 
   
 
   
-  export const environment = LOCAL_ENV; 
+  export const environment = DEV_ENV; 
