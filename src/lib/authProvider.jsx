@@ -1,7 +1,11 @@
+
+
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useContext, createContext } from "react";
-import { mockLogin, mockLogout } from "./mockAut";
+import { getProfile, loginRequest, registerRequest } from "../helpers/fetch";
+
+
 
 // Crear el contexto de autenticación
 export const AuthContext = createContext();
@@ -19,47 +23,58 @@ export const useAuth = () => {
 
 // Proveer la lógica de autenticación
 function useProvideAuth() {
+
   const [user, setUser] = useState(null);
-  {/*
-  const login = (email, password) => {
-    // Guardar el estado de autenticación en el localStorage
-    localStorage.setItem(
-      "state",
-      JSON.stringify({ email: email, password: password })
-    );
-    setUser({ email: email, password: password });
-    return { email: email, password: password };
-  };
-  */}
+  const [userProfile, setUserProfile] = useState(null);
+  
+  useEffect(() => {
+
+    const userInfo = JSON.parse(localStorage.getItem("state"));
+    const userProfileLocal = JSON.parse(localStorage.getItem("userProfile"));
+    if (userInfo) {
+      setUser(userInfo);
+    }
+
+    if (userProfileLocal) {
+      setUserProfile(userProfileLocal);
+    }
+
+  }, []);
+
 
   const login = async (email, password) => {
     try {
-      const user = await mockLogin(email, password);
-      localStorage.setItem("state", JSON.stringify(user));
-      setUser(user);
-      return user;
+      const loggedInUser = await loginRequest(email, password);
+      if (loggedInUser) {
+        setUser(loggedInUser.userInfo);
+        localStorage.setItem("state", JSON.stringify(loggedInUser.userInfo));
+        await fetchUserProfile();
+        return loggedInUser;
+      }
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      throw error;
+      console.error('Error al iniciar sesión:', error);
+      throw error; // Asegúrate de lanzar el error para manejarlo en el componente
     }
   };
 
-  const register = (email, password) => {
-    // Aquí puedes agregar la lógica para registrar un nuevo usuario
-  };
+    const register = async (payload) => {
+      try {
+        const registeredUser = await registerRequest(payload);
+        if (registeredUser) {
+          setUser(registeredUser.userInfo);
+          localStorage.setItem("state", JSON.stringify(registeredUser.userInfo));
+          return registeredUser;
+        }
+      } catch (error) {
+        console.error('Error al registrar:', error);
+        throw error;
+      }
+    };
+  
 
-  {/* 
-  const logout = () => {
-    // Eliminar el estado de autenticación del localStorage
-    localStorage.removeItem("state");
-    setUser(false);
-    return true;
-  };
-  */}
 
   const logout = async () => {
     try {
-      await mockLogout();
       localStorage.removeItem("state");
       setUser(null);
     } catch (error) {
@@ -67,26 +82,26 @@ function useProvideAuth() {
     }
   };
 
-  useEffect(() => {
-    const checkUser = () => {
-      const storage = localStorage.getItem("state");
-      if (storage !== null) {
-        setUser(JSON.parse(storage));
-      } else {
-        setUser(false);
-      }
-    };
 
-    checkUser();
-  }, []);
-
-  
+  const fetchUserProfile = async () => {
+      
+    try {
+      const token = JSON.parse(localStorage.getItem('token')).token; 
+      const profile = await getProfile(token);
+      setUserProfile(profile);
+      localStorage.setItem("userProfile", JSON.stringify(profile));
+    } catch (error) {
+      console.error('Error al obtener el perfil del usuario:', error);
+    }
+  };
 
   return {
     user,
+    userProfile,
     login,
     register,
     logout,
+    fetchUserProfile
   };
 }
 

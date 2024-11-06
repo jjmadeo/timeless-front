@@ -2,17 +2,17 @@
 // LOCAL
 const LOCAL_ENV = {
     environment: 'LOCAL',
-    base: 'http://localhost/api',
+    base: 'http://localhost:8082/v1/timeless/',
   };
   
   // DEV
   const DEV_ENV = {
     environment: 'DEV',
-    base: 'http://10.32.11.96/api',
+    base: 'https://service.time-less.online/v1/timeless/',
   };
   
 
   
 
   
-  export const environment = LOCAL_ENV; // Default to DEV_ENV if not found
+  export const environment = DEV_ENV; 

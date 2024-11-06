@@ -1,0 +1,137 @@
+@import '../../styles/style.scss';
+
+.crear-empresa-container {
+    width: 100vw; 
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+#container-form{
+    margin-top: -50px;
+}
+
+.filas-form {
+    width: 80%; // Full width for the form
+}
+
+.item-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    width: 100%; // Full width
+}
+
+.item-text {
+    flex-grow: 1;
+    margin-right: 1rem;
+}
+
+.dias-laborales-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.btn-quitar {
+    background-color: $secondary-green;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    margin-top: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: darken($secondary-green, 10%);
+    }
+}
+
+.text-right {
+    text-align: right;
+}
+
+.select-rubro {
+
+    .css-13cymwt-control {
+        background-color: $light-gray !important;
+        border: 1px solid $secondary-green !important;
+        border-radius: 5px !important;
+        transition: border-color 0.3s ease !important;
+
+        &:hover {
+            background-color: $light-gray !important;
+            border-color: darken($secondary-green, 10%) !important;
+        }
+    }
+
+    .css-1u9des2-indicatorSeparator {
+        background-color: $light-gray !important;
+        display: none !important;
+    }
+
+    .css-1xc3v61-indicatorContainer {
+        background-color: $light-gray !important;
+        color: $secondary-green !important;
+    }
+
+    .css-13cymwt-control--is-focused {
+        background-color: $light-gray !important;
+        border-color: $secondary-green !important;
+        box-shadow: 0 0 0 0.2rem rgba($secondary-green, 0.25) !important;
+    }
+
+.css-1nmdiq5-menu {
+    background-color: $light-gray !important;
+
+}
+
+.css-hlgwow { 
+    background-color: $light-gray !important;
+
+}
+.css-1wy0on6{
+    background-color: $light-gray !important;
+}
+
+
+    .css-13cymwt-control--menu-is-open {
+        background-color: $light-gray !important;
+        border-bottom-right-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+
+    .css-1jqq78o-placeholder {
+        background-color: $light-gray !important;
+        color: $secondary-green !important;
+    }
+
+    .css-1okebmr-indicatorContainer {
+        background-color: $light-gray !important;
+        color: $secondary-green !important;
+    }
+
+    .css-1dimb5e-singleValue {
+        background-color: $light-gray !important;
+    }
+
+    .css-1n7v3ny-option {
+        background-color: $light-gray !important;
+        &--is-focused {
+            background-color: lighten($secondary-green, 40%) !important;
+        }
+
+        &--is-selected {
+            background-color: $secondary-green !important;
+            color: white !important;
+        }
+    }
+}

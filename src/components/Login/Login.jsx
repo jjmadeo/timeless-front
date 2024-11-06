@@ -1,32 +1,81 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../../lib/authProvider'; // Asegúrate de ajustar la ruta si es necesario
-import './Login.scss';
-import { Button, Card, Container, Form} from 'react-bootstrap';
-
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {  useAuth } from "../../lib/authProvider";
+import {
+  Button,
+  Card,
+  Container,
+  Form,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
+import { postResetPass } from "../../helpers/fetch";
+import "./Login.scss";
 
 const Login = () => {
-  const { login, user } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [toastMessage, setToastMessage] = useState(""); // Estado para el mensaje del toast
+  const [showToast, setShowToast] = useState(false); // Estado para mostrar/ocultar el toast
+  const navigate = useNavigate();
+  const auth = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    const registerSuccessMessage = localStorage.getItem("registerSuccess");
+    if (registerSuccessMessage) {
+      setToastMessage(registerSuccessMessage);
+      setError(false);
+      setShowToast(true);
+      localStorage.removeItem("registerSuccess"); // Eliminar el mensaje del almacenamiento local
+    }
+  }, []);
+
+  useEffect(() => {
+    if (location.state && location.state.message) {
+        const mensaje = location.state.message.data;
+
+        setToastMessage(`${mensaje}`);
+        setShowToast(true);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      const res = await auth.login(email, password);
+
+      if (res) {
+        setToastMessage("Login exitoso");
+        setError(false);
+        setShowToast(true);
+
+
+        console.log("Usuario logueado:", res.userInfo.ROL);
+        console.log(res);
+        if (res.userInfo.ROL === "[ROLE_GENERAL]") {
+          navigate("/HomeGeneral");
+        } else if (res.userInfo.ROL === "[ROLE_EMPRESA]") {
+          navigate("/schedule");
+        } else {
+          navigate("/default-dashboard");
+        }
+      }
+    } catch (err) {
+      setError(true);
+      setToastMessage(err.message || "Error al iniciar sesión. Intente de nuevo.");
+      setShowToast(true);
     }
   };
 
   return (
-    
-    <Container 
-    className="login-container">
-     <img 
-        src="../../../public/assets/Login.png" 
-        className="background-image" 
-        alt="Background" 
-      />
+    <Container className="login-container">
+        <img
+          src="/assets/01-login.png"
+          className="background-image"
+          alt="Background"
+        />
       <Card className="login-card">
         <Card.Body>
           <Form onSubmit={handleSubmit}>
@@ -50,20 +99,31 @@ const Login = () => {
                 className="rounded-input"
               />
             </Form.Group>
-            <Button type="submit" className="btn-login mt-3">Iniciar sesión</Button>
+            <Button type="submit" className="btn-login mt-3">
+              Iniciar sesión
+            </Button>
           </Form>
-          <div className="text-center mt-3">
-            <p className="register-link">
-              ¿Primera vez en Timeless? <a href="/register">Registrate</a>
-            </p>
+          <div className="mt-3 text-center">
+            <a href="#" onClick={() => navigate("/resetPassword")}>
+              Recuperar contraseña
+            </a>
           </div>
-          {user && <p className="text-center mt-3">Welcome, {user.email}!</p>}
         </Card.Body>
       </Card>
+      {/* Toast container */}
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast
+          bg={error ? "danger" : "success"}
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </Container>
-
   );
 };
 
 export default Login;
-

@@ -1,0 +1,79 @@
+@import '../../styles/style.scss';
+
+$creamy: #f5f5dc; // Define el color creamy
+
+.shadow {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.scrollable-div-futuros {
+    max-height: 525px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+}
+
+.scrollable-div-hoy {
+    max-height: 300px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+}
+
+.scrollable-div-historico {
+    max-height: 525px; /* Ajusta la altura máxima según tus necesidades */
+    overflow-y: auto;  /* Agrega un desplazamiento vertical cuando el contenido excede la altura máxima */
+}
+
+.turnoContainer {
+    padding: 5px;
+}
+
+.card-usuario {
+    color: $creamy; // Aplica el color creamy al texto de las tarjetas
+    border-radius: 10px; // Bordes redondeados
+    border: none; // Sin borde
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Sombra sutil
+    background-color: #2c3e50; // Fondo oscuro para contraste
+}
+
+.card-title {
+    text-transform: uppercase; // Texto en mayúsculas
+    font-weight: bold; // Negrita
+}
+
+.card-title, .card-text {
+    margin-bottom: 0.5rem; // Espaciado entre textos
+}
+
+.card-body {
+    padding: 1.5rem; // Más espacio interno
+}
+
+.btn {
+    border-radius: 5px; // Bordes redondeados para botones
+}
+
+/* Personalización del scrollbar */
+.scrollable-div-hoy::-webkit-scrollbar,
+.scrollable-div-futuros::-webkit-scrollbar,
+.scrollable-div-historico::-webkit-scrollbar {
+    width: 12px; /* Ancho del scrollbar */
+}
+
+.scrollable-div-hoy::-webkit-scrollbar-track,
+.scrollable-div-futuros::-webkit-scrollbar-track,
+.scrollable-div-historico::-webkit-scrollbar-track {
+    background: #2c3e50; /* Color de fondo del track */
+    border-radius: 10px; /* Bordes redondeados del track */
+}
+
+.scrollable-div-hoy::-webkit-scrollbar-thumb,
+.scrollable-div-futuros::-webkit-scrollbar-thumb,
+.scrollable-div-historico::-webkit-scrollbar-thumb {
+    background: $creamy; /* Color del thumb */
+    border-radius: 10px; /* Bordes redondeados del thumb */
+    border: 3px solid #2c3e50; /* Espacio alrededor del thumb */
+}
+
+.scrollable-div-hoy::-webkit-scrollbar-thumb:hover,
+.scrollable-div-futuros::-webkit-scrollbar-thumb:hover,
+.scrollable-div-historico::-webkit-scrollbar-thumb:hover {
+    background: lighten($creamy, 10%); /* Color del thumb al pasar el mouse */
+}

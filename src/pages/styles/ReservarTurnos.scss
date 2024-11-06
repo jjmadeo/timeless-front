@@ -1,0 +1,107 @@
+@import '../../styles/style.scss';
+
+.available-day {
+    background-color: #b0e57c; /* Verde claro */
+    color: black;
+  }
+  
+  .unavailable-day {
+    background-color: #ffcccb; /* Rojo claro */
+    color: black;
+  }
+
+
+  .custom-map-modal {
+    .modal-dialog {
+      max-width: 80%;
+    }
+  
+    .modal-content {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+  
+    .modal-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+  
+    .modal-body {
+      padding: 0;
+    }
+  
+    .modal-footer {
+      background-color: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+    }
+  }
+
+  .card-servicios {
+    background-color: $light-gray;
+  }
+
+  .select {
+    background-color: white !important;
+  }
+
+
+  /* CustomDatePicker.scss */
+.custom-datepicker {
+  .react-datepicker {
+    font-size: 0.8rem; /* Tamaño de fuente más pequeño */
+  }
+
+  .react-datepicker__header {
+    background-color: #343a40; /* Color de fondo del encabezado */
+    border-bottom: 1px solid #6c757d; /* Borde inferior */
+  }
+
+  .react-datepicker__current-month,
+  .react-datepicker__day-name {
+    color: #ffffff; /* Color del texto del mes actual y nombres de los días */
+  }
+
+  .react-datepicker__day--selected,
+  .react-datepicker__day--keyboard-selected {
+    background-color: #6c757d; /* Color de fondo del día seleccionado */
+    color: #ffffff; /* Color del texto del día seleccionado */
+  }
+
+  .react-datepicker__day--today {
+    border-color: #6c757d; /* Borde del día actual */
+  }
+}
+
+.circle-plus {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #99cc99; /* Color de fondo del círculo */
+  color: #ffffff; /* Color del texto */
+  font-size: 14px; /* Tamaño de la fuente */
+  font-weight: bold; /* Peso de la fuente */
+  margin: 9px auto; /* Centrar el círculo */
+}
+
+.circle-plus-ref {
+  display: inline-flex;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #99cc99; /* Color de fondo del círculo */
+  color: #ffffff; /* Color del texto */
+  font-size: 14px; /* Tamaño de la fuente */
+  font-weight: bold; /* Peso de la fuente */
+
+}
+
+
+.rbc-event{
+  background-color: $creamy ; /* Color de fondo del círculo */
+}

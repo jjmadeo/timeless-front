@@ -59,11 +59,12 @@
   }
 
   .background-image {
+    margin-top: 20px;
     position: absolute;
     top: 0;
     right: 0;
     width: auto;
-    z-index: 0; // Adjust opacity as needed
+    z-index: -1; 
   }
 
   @media (max-width: 576px) {

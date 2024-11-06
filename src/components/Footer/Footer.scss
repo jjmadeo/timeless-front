@@ -1,0 +1,38 @@
+@import '../../styles/style.scss';
+
+.footer {
+  background-color: $creamy !important;
+  color: black !important;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); // Sombra suave en la parte superior
+  padding: 20px 0;
+  margin-top: 20px;
+
+  .contact-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap; // Permite que los elementos se ajusten en pantallas pequeñas
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0; // Elimina el margen para alinear correctamente
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0; // Elimina el margen para alinear correctamente
+    display: flex;
+    align-items: center;
+  }
+
+  .footer-divider {
+    border-top: 2px solid rgba(0, 0, 0);
+    margin: 20px 0;
+  }
+
+  .text-center {
+    text-align: center; // Asegura que el texto esté centrado
+  }
+}

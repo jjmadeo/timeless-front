@@ -1,13 +1,82 @@
 @import '../../styles/style.scss';
 
+
+
 .navbar.bg-primary {
-    background-color: $secondary-green !important;
+    background-color: $creamy !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Sombra suave
   }
+
   
   .navbar-dark .navbar-nav .nav-link {
-    color: #ffffff !important;
+    font-weight: bold;  // Aplica negrita a todos los enlaces
+    font-size: 0.9rem;
+    color: black !important;
   }
   
+  .navbar-dark .navbar-brand {
+    color: black !important; // Marca en negro
+    font-size: 1.5rem;  // Aumenta el tamaño de la letra
+    font-weight: bold;
+}
+
+.navbar-text{
+  font-weight: bold;  // Aplica negrita a todos los enlaces
+  font-size: 0.9rem;
+  color: black !important;
+}
+
   .navbar-dark .navbar-nav .nav-link:hover {
     color: $primary-green !important;
+  }
+
+  .btn-primary{
+
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    color: black !important;
+    background-color: $light-gray !important;
+    border-color: $light-gray !important;
+  }
+
+  .btn-secondary{
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    color: black !important;
+    background-color: $secondary-green !important;
+    border-color: $secondary-green !important;
+  }
+
+
+  .scrollTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    height: 50px;
+    width: 50px;
+    background-color: $secondary-green;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .scrollTop:hover {
+    background-color: $secondary-green;
+  }
+
+  @media (max-width: 768px) {
+    .navbar-collapse {
+      text-align: center; // Centrar los elementos en el menú hamburguesa
+    }
+  
+    .btn-primary,
+    .btn-secondary {
+      width: 100%; // Hacer que los botones ocupen el 100% del ancho en pantallas pequeñas
+      margin-bottom: 10px; // Añadir margen inferior para separar los botones
+    }
   }
