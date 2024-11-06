@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext, useAuth } from "../../lib/authProvider";
 import logo from "../../../public/assets/Logo.png";
 import "./Navbar.scss";
@@ -13,6 +13,7 @@ const NavigationBar = () => {
   const [showScroll, setShowScroll] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   // Función para decodificar el token
   const decodeToken = (token) => {
     if (token) {
@@ -122,6 +123,9 @@ const NavigationBar = () => {
                 </>
               ) : (
                 <>
+                {location.pathname === "/" && (
+                
+                <>
                   <Nav.Link className="mx-2" href="#services">
                     Beneficios
                   </Nav.Link>
@@ -131,6 +135,8 @@ const NavigationBar = () => {
                   <Nav.Link className="mx-2" href="#showcase">
                     Comunidad
                   </Nav.Link>
+                </>
+                )}
                   <Button
                     className="me-4"
                     variant="primary"

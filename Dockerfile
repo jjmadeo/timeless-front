@@ -5,7 +5,7 @@ FROM node:18 AS build
 WORKDIR /app
 
 # Copia el package.json y package-lock.json
-COPY package*.json ./ 
+COPY package*.json ./
 
 # Instala las dependencias
 RUN npm install
@@ -20,8 +20,11 @@ RUN npm run build  # Asegúrate de que el comando build genere los archivos en e
 FROM nginx:stable-alpine
 
 # Copia los archivos de la build al directorio de NGINX
-COPY --from=build /app/dist /usr/share/nginx/html  
-# Cambio aquí para usar "dist" en lugar de "build"
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copia la configuración personalizada de NGINX
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 # Expone el puerto 80 para acceder a la aplicación
 EXPOSE 80
