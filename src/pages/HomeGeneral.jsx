@@ -77,11 +77,11 @@ const HomeGeneral = () => {
           if (!auth.user || auth.user.ROL !== "[ROLE_GENERAL]") {
             navigate("/login");
           }
-        }, 1000); // 2000 ms = 2 segundos
+        }, 1000);
     
-        // Limpiar el temporizador si el componente se desmonta antes de que se complete el tiempo
         return () => clearTimeout(timeoutId);
       }, [auth, navigate]);
+      
     const fetchGetTurnos = async () => {
         try {
             const token = JSON.parse(localStorage.getItem("token")).token;

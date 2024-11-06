@@ -25,7 +25,7 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <div className="container mt-4" style={{ minHeight: 'calc(100vh - 233px)' }}>
         <Routes>
-          <Route path="/landingPage" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/reservarTurno" element={<ReservarTurno />} />
           <Route path="/homeGeneral" element={<HomeGeneral />} />
           <Route path="/schedule" element={<Schedule />} />
