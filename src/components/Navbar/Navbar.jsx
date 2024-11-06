@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext, useAuth } from "../../lib/authProvider";
-import logo from "../../../public/assets/logo.png";
+import logo from "../../../public/assets/Logo.png";
 import "./Navbar.scss";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
