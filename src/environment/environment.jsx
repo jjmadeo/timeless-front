@@ -15,4 +15,4 @@ const LOCAL_ENV = {
   
 
   
-  export const environment = LOCAL_ENV; 
+  export const environment = DEV_ENV; 
