@@ -192,16 +192,22 @@ const Register = () => {
               </Row>
               <Row>
                 <Col md={6}>
-                  <Form.Group controlId="formDocumentType">
+                <Form.Group controlId="formDocumentType">
                     <Form.Label>Tipo de Documento</Form.Label>
                     <Form.Control
-                      type="text"
+                      as="select"
                       name="documentType"
                       value={formData.documentType}
                       onChange={handleChange}
                       required
                       className="rounded-input"
-                    />
+                    >
+                      <option value="">Seleccione...</option>
+                      <option value="DNI">DNI</option>
+                      <option value="CUIL">CUIL</option>
+                      <option value="LE">LE</option>
+                      <option value="LC">LC</option>
+                    </Form.Control>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
