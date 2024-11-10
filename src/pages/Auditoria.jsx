@@ -63,7 +63,7 @@ const Auditoria = () => {
     { id: 'telefono_usuario', Header: 'Teléfono usuario', accessor: 'telefono_usuario' },
     { id: 'turno', Header: 'Turno', accessor: 'turno' },
     { id: 'canceled_by', Header: 'Cancelado por', accessor: 'canceled_by' },
-    { id: 'fh_event', Header: 'Fecha Evento', accessor: 'fh_event' },
+    { id: 'fh_event', Header: 'Fecha Cancelación', accessor: 'fh_event' },
     // Agrega más columnas según sea necesario
   ];
 

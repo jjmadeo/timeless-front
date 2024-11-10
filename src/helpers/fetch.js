@@ -20,8 +20,8 @@ export const postRequest = async (endpoint, data, token = null) => {
   // Verifica si la respuesta es correcta
   if (!response.ok) {
     const errorData = await response.json();
-    // Aquí puedes lanzar un error más descriptivo
-    throw new Error(`${errorData.error.title}`);
+
+    throw new Error(`${errorData.message}`);
   }
 
   return response.json();

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AppCalendar from '../components/Calendar/Calendar';
-import { Modal, Dropdown, Button, Toast, ToastContainer } from 'react-bootstrap';
+import { Modal, Dropdown, Button, Toast, ToastContainer, Card } from 'react-bootstrap';
 import { parseISO, isBefore, isToday } from 'date-fns';
 import { getTurnosByLineaId, getEmpresaById, postCancelarTurnoUsuario } from "../helpers/fetch";
 import { useAuth } from '../lib/authProvider';
@@ -29,7 +29,7 @@ const Schedule = () => {
       if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
         navigate("/login");
       }
-    }, .1000);
+    }, 1000);
 
     return () => clearTimeout(timeoutId);
   }, [auth, navigate]);
@@ -163,82 +163,98 @@ const Schedule = () => {
 
   return (
     <div>
-      <h1>Estas son tus agendas</h1>
-      
-      <Dropdown onSelect={handleSelectAgenda}>
-        <Dropdown.Toggle variant="success" id="dropdown-basic">
-          {selectedAgenda}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {agendas.map((agenda, index) => (
-            <Dropdown.Item key={index} eventKey={agenda}>
-              {agenda}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
+      {agendas.length === 0 ? (
+        <Card className="text-center">
+          <Card.Body>
+            <Card.Title>No tienes agendas</Card.Title>
+            <Card.Text>
+              Para poder ver tus agendas, primero tienes que crear una empresa.
+            </Card.Text>
+            <Button variant="secondary" onClick={() => navigate("/crearEmpresa")}>
+              Crear Empresa
+            </Button>
+          </Card.Body>
+        </Card>
+      ) : (
+        <>
+          <h1>Estas son tus agendas</h1>
+          
+          <Dropdown onSelect={handleSelectAgenda}>
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              {selectedAgenda}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {agendas.map((agenda, index) => (
+                <Dropdown.Item key={index} eventKey={agenda}>
+                  {agenda}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
 
-      <AppCalendar 
-        events={eventsByAgenda[selectedAgenda]} 
-        onSelectSlot={handleSelectSlot} 
-        onSelectEvent={handleSelectEvent} 
-        horaApertura={horaApertura} 
-        horaCierre={horaCierre} 
-        duracionTurnos={duracionTurnos} 
-      />
+          <AppCalendar 
+            events={eventsByAgenda[selectedAgenda]} 
+            onSelectSlot={handleSelectSlot} 
+            onSelectEvent={handleSelectEvent} 
+            horaApertura={horaApertura} 
+            horaCierre={horaCierre} 
+            duracionTurnos={duracionTurnos} 
+          />
 
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Información del Turno</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedEvent ? (
-            <div>
-              <p><strong>Nombre:</strong> {selectedEvent.nombre}</p>
-              <p><strong>Apellido:</strong> {selectedEvent.apellido}</p>
-              <p><strong>Teléfono:</strong> {selectedEvent.telefono}</p>
-              <p><strong>Correo:</strong> {selectedEvent.email}</p>
-              {(isToday(selectedEvent.start) || isBefore(new Date(), selectedEvent.start)) && (
-                <Button variant="danger" onClick={handleCancelTurno}>Cancelar Turno</Button>
+          <Modal show={showModal} onHide={handleCloseModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Información del Turno</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {selectedEvent ? (
+                <div>
+                  <p><strong>Nombre:</strong> {selectedEvent.nombre}</p>
+                  <p><strong>Apellido:</strong> {selectedEvent.apellido}</p>
+                  <p><strong>Teléfono:</strong> {selectedEvent.telefono}</p>
+                  <p><strong>Correo:</strong> {selectedEvent.email}</p>
+                  {(isToday(selectedEvent.start) || isBefore(new Date(), selectedEvent.start)) && (
+                    <Button variant="danger" onClick={handleCancelTurno}>Cancelar Turno</Button>
+                  )}
+                </div>
+              ) : (
+                null
               )}
-            </div>
-          ) : (
-            null
-          )}
-        </Modal.Body>
-      </Modal>
+            </Modal.Body>
+          </Modal>
 
-      <Modal
-        show={showConfirmCancelModal}
-        onHide={() => setShowConfirmCancelModal(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Cancelación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas cancelar este turno?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirmCancelModal(false)}>
-            Cerrar
-          </Button>
-          <Button variant="danger" onClick={handleConfirmCancel}>
-            Confirmar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          <Modal
+            show={showConfirmCancelModal}
+            onHide={() => setShowConfirmCancelModal(false)}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Confirmar Cancelación</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              ¿Estás seguro de que deseas cancelar este turno?
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowConfirmCancelModal(false)}>
+                Cerrar
+              </Button>
+              <Button variant="danger" onClick={handleConfirmCancel}>
+                Confirmar
+              </Button>
+            </Modal.Footer>
+          </Modal>
 
-      <ToastContainer position="bottom-end" className="p-3">
-        <Toast
-          bg={toastType === "success" ? "success" : "danger"}
-          onClose={() => setShowToast(false)}
-          show={showToast}
-          delay={3000}
-          autohide
-        >
-          <Toast.Body>{toastMessage}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+          <ToastContainer position="bottom-end" className="p-3">
+            <Toast
+              bg={toastType === "success" ? "success" : "danger"}
+              onClose={() => setShowToast(false)}
+              show={showToast}
+              delay={3000}
+              autohide
+            >
+              <Toast.Body>{toastMessage}</Toast.Body>
+            </Toast>
+          </ToastContainer>
+        </>
+      )}
     </div>
   );
 };
