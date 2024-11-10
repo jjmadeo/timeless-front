@@ -99,7 +99,11 @@ const NavigationBar = () => {
                       Crear Empresa
                     </Button>
                   )}
+                  <Nav.Link as={Link} to="/auditoria">
+                    Turnos cancelados
+                  </Nav.Link>
                 </>
+                
               ) : null}
             </Nav>
             <Nav className="ml-auto">
