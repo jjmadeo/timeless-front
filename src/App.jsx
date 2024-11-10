@@ -15,6 +15,7 @@ import CrearEmpresa from './pages/CrearEmpresa';
 import LandingPage from './pages/LandingPage';
 import ReservarTurno from './pages/ReservarTurno';
 import ConfirmEliminarTurno from './pages/ConfirmEliminarTurno';
+import Auditoria from './pages/Auditoria';
 
 function AppContent() {
   const location = useLocation();
@@ -25,6 +26,7 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <div className="container mt-4" style={{ minHeight: 'calc(100vh - 233px)' }}>
         <Routes>
+          <Route path="/auditoria" element={<Auditoria />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/reservarTurno" element={<ReservarTurno />} />
           <Route path="/homeGeneral" element={<HomeGeneral />} />

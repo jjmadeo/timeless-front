@@ -20,8 +20,8 @@ export const postRequest = async (endpoint, data, token = null) => {
   // Verifica si la respuesta es correcta
   if (!response.ok) {
     const errorData = await response.json();
-    // Aquí puedes lanzar un error más descriptivo
-    throw new Error(`${errorData.error.title}`);
+
+    throw new Error(`${errorData.message}`);
   }
 
   return response.json();
@@ -486,6 +486,26 @@ export const postCambiarContrasena = async ( payload, token) => {
     return response;
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
+    throw error;
+  }
+};
+
+export const getAuditEmpresa = async (canceledBy, id, token) => {
+  try {
+    const response = await getRequest(`AuditEmpresa/${id}?canceledBy=${canceledBy}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los turnos:', error);
+    throw error;
+  }
+};
+
+export const getAudit = async (canceledBy, id, token) => {
+  try {
+    const response = await getRequest(`Audit/${id}?canceledBy=${canceledBy}`, token);
+    return response;
+  } catch (error) {
+    console.error('Error al obtener los turnos:', error);
     throw error;
   }
 };

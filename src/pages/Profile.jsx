@@ -62,7 +62,7 @@ const Profile = () => {
       ) {
         navigate("/login");
       }
-    }, 1000);
+    }, .1000);
 
     return () => clearTimeout(timeoutId);
   }, [auth, navigate]);

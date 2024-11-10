@@ -89,6 +89,7 @@ const Register = () => {
       };
 
       var res = await register(payload);
+      console.log(res);
       if (res) {
         localStorage.setItem("registerSuccess", "Registro exitoso"); // Guardar el mensaje en el almacenamiento local
         navigate("/login");

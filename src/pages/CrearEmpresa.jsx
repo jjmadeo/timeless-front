@@ -57,7 +57,7 @@ const CrearEmpresa = () => {
       if (!auth.user || auth.user.ROL !== "[ROLE_EMPRESA]") {
         navigate("/login");
       }
-    }, 1000);
+    }, .1000);
 
     return () => clearTimeout(timeoutId);
   }, [auth, navigate]);

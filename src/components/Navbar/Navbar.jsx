@@ -94,12 +94,16 @@ const NavigationBar = () => {
                   <Nav.Link as={Link} to="/schedule">
                     Agendas
                   </Nav.Link>
+                  <Nav.Link as={Link} to="/auditoria">
+                    Turnos cancelados
+                  </Nav.Link>
                   {userProfile && userProfile.id_empresa === null && (
                     <Button variant="secondary" as={Link} to="/crearEmpresa">
                       Crear Empresa
                     </Button>
                   )}
                 </>
+                
               ) : null}
             </Nav>
             <Nav className="ml-auto">
