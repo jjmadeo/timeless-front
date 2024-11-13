@@ -73,7 +73,7 @@ const NavigationBar = () => {
               height="50"
               className="d-inline-block me-3"
             />{" "}
-            timeless
+            Timeless
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

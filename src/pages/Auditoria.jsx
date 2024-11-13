@@ -79,7 +79,7 @@ const Auditoria = () => {
         data={auditEmpresaData}
         pageSize={10}
       />
-      <ToastContainer position="bottom-end" className="p-3">
+      <ToastContainer position="bottom-end" className="p-3 text-white">
         <Toast
           bg={error ? "danger" : "success"}
           onClose={() => setShowToast(false)}
