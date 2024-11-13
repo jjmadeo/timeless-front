@@ -242,7 +242,7 @@ const Schedule = () => {
             </Modal.Footer>
           </Modal>
 
-          <ToastContainer position="bottom-end" className="p-3">
+          <ToastContainer position="bottom-end" className="p-3 text-white">
             <Toast
               bg={toastType === "success" ? "success" : "danger"}
               onClose={() => setShowToast(false)}

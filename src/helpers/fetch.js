@@ -27,6 +27,33 @@ export const postRequest = async (endpoint, data, token = null) => {
   return response.json();
 };
 
+export const postRequestLogin = async (endpoint, data, token = null) => {
+  console.log('API Base URL:', environment.base);
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(environment.base + endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  // Verifica si la respuesta es correcta
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.log(errorData)
+    throw new Error(errorData.error.title || 'Error desconocido');
+  }
+
+  return response.json();
+};
+
 export const postRequestWithParams = async (endpoint, data, token = null) => {
   console.log('API Base URL:', environment.base);
   const headers = {
@@ -224,7 +251,7 @@ export const deleteRequest2 = async (endpoint, token = null) => {
 export const loginRequest = async (email, password) => {
   try {
     const data = { correo: email, clave: password };
-    const response = await postRequest('authenticate', data);
+    const response = await postRequestLogin('authenticate', data);
 
     // Si la API devuelve un token, es un éxito
     if (response.token) {

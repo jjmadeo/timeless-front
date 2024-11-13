@@ -99,7 +99,7 @@ const FormularioAusencias = ({
                 Guardar Ausencias
             </Button>
 
-            <ToastContainer position="top-end">
+            <ToastContainer position="top-end" className="p-3 text-white">
                 <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide bg={"danger"}>
                     <Toast.Body>Por favor, complete todos los campos correctamente.</Toast.Body>
                 </Toast>
