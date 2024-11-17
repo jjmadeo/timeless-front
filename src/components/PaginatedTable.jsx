@@ -58,85 +58,87 @@ const PaginatedTable = ({ columns, data, pageSize, onEdit, onDelete, onViewMore,
         onChange={(e) => setFilter(e.target.value)}
         className="paginated-table-filter"
       />
-      <table className="paginated-table">
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th
-                key={column.id}
-                style={{ width: column.width || 'auto', maxWidth: column.width, wordWrap: 'break-word'}}
-              >
-                {column.Header}
-              </th>
-            ))}
-            {(onEdit || onDelete || onViewMore || onDownload || onTraining) && (
-              <th className="paginated-table-actions-header">
-                Acciones
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((item, index) => (
-            <tr key={index}>
+      <div className="paginated-table-wrapper">
+        <table className="paginated-table">
+          <thead>
+            <tr>
               {columns.map((column) => (
-                <td
+                <th
                   key={column.id}
                   style={{ width: column.width || 'auto', maxWidth: column.width, wordWrap: 'break-word'}}
                 >
-                  {renderCellContent(item, column)}
-                </td>
+                  {column.Header}
+                </th>
               ))}
               {(onEdit || onDelete || onViewMore || onDownload || onTraining) && (
-                <td>
-                  <div className="paginated-table-actions">
-                    {onViewMore && (
-                      <button
-                        className="paginated-table-action-button view-more"
-                        onClick={() => onViewMore(item)}
-                      >
-                        Ver más
-                      </button>
-                    )}
-                    {onEdit && (
-                      <button
-                        className="paginated-table-action-button edit"
-                        onClick={() => onEdit(item)}
-                      >
-                        <FaPencilAlt />
-                      </button>
-                    )}
-                    {onDelete && (
-                      <button
-                        className="paginated-table-action-button delete"
-                        onClick={() => onDelete(item)}
-                      >
-                        <FaRegTrashAlt />
-                      </button>
-                    )}
-                    {onTraining && (
-                      <button
-                        className="paginated-table-action-button training"
-                        onClick={() => onTraining(item)}
-                      >
-                        Entrenar
-                      </button>
-                    )}
-                    {onDownload && item.originalFile && (
-                      <button
-                        className="paginated-table-action-button download"
-                        onClick={() => onDownload(item)}
-                      >
-                        Descargar
-                      </button>
-                    )}
-                  </div>
-                </td>
+                <th className="paginated-table-actions-header">
+                  Acciones
+                </th>
               )}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedData.map((item, index) => (
+              <tr key={index}>
+                {columns.map((column) => (
+                  <td
+                    key={column.id}
+                    style={{ width: column.width || 'auto', maxWidth: column.width, wordWrap: 'break-word'}}
+                  >
+                    {renderCellContent(item, column)}
+                  </td>
+                ))}
+                {(onEdit || onDelete || onViewMore || onDownload || onTraining) && (
+                  <td>
+                    <div className="paginated-table-actions">
+                      {onViewMore && (
+                        <button
+                          className="paginated-table-action-button view-more"
+                          onClick={() => onViewMore(item)}
+                        >
+                          Ver más
+                        </button>
+                      )}
+                      {onEdit && (
+                        <button
+                          className="paginated-table-action-button edit"
+                          onClick={() => onEdit(item)}
+                        >
+                          <FaPencilAlt />
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          className="paginated-table-action-button delete"
+                          onClick={() => onDelete(item)}
+                        >
+                          <FaRegTrashAlt />
+                        </button>
+                      )}
+                      {onTraining && (
+                        <button
+                          className="paginated-table-action-button training"
+                          onClick={() => onTraining(item)}
+                        >
+                          Entrenar
+                        </button>
+                      )}
+                      {onDownload && item.originalFile && (
+                        <button
+                          className="paginated-table-action-button download"
+                          onClick={() => onDownload(item)}
+                        >
+                          Descargar
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {totalPages > 1 && (
         <div className="paginated-table-pagination">

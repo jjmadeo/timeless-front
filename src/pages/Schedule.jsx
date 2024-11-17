@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AppCalendar from '../components/Calendar/Calendar';
-import { Modal, Dropdown, Button, Toast, ToastContainer, Card } from 'react-bootstrap';
+import { Modal, Dropdown, Button, Toast, ToastContainer, Card, Spinner } from 'react-bootstrap';
 import { parseISO, isBefore, isToday } from 'date-fns';
 import { getTurnosByLineaId, getEmpresaById, postCancelarTurnoUsuario } from "../helpers/fetch";
 import { useAuth } from '../lib/authProvider';
@@ -21,6 +21,7 @@ const Schedule = () => {
   const [horaApertura, setHoraApertura] = useState('09:00');
   const [horaCierre, setHoraCierre] = useState('18:00');
   const [duracionTurnos, setDuracionTurnos] = useState(30); // Valor por defecto
+  const [loading, setLoading] = useState(true); // Estado para controlar la carga de datos
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -45,6 +46,7 @@ const Schedule = () => {
         setSelectedAgenda(lineasAtencion[0]);
         setHoraApertura(empresa.calendario.hora_apertura);
         setHoraCierre(empresa.calendario.hora_cierre);
+        setLoading(false); // Datos cargados, desactivar el estado de carga
       };
       fetchEmpresaData();
     }
@@ -111,7 +113,6 @@ const Schedule = () => {
 
   const handleSelectEvent = (event) => {
     if (event.hashid) {
-
       setSelectedEvent(event);
       setShowModal(true);
     }
@@ -163,7 +164,13 @@ const Schedule = () => {
 
   return (
     <div>
-      {agendas.length === 0 ? (
+      {loading ? (
+        <div className="text-center">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </Spinner>
+        </div>
+      ) : agendas.length === 0 ? (
         <Card className="text-center">
           <Card.Body>
             <Card.Title>No tienes agendas</Card.Title>

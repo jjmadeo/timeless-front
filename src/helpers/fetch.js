@@ -519,7 +519,7 @@ export const postCambiarContrasena = async ( payload, token) => {
 
 export const getAuditEmpresa = async (canceledBy, id, token) => {
   try {
-    const response = await getRequest(`AuditEmpresa/${id}?canceledBy=${canceledBy}`, token);
+    const response = await getRequest(`AuditEmpresa/${id}`, token);
     return response;
   } catch (error) {
     console.error('Error al obtener los turnos:', error);
