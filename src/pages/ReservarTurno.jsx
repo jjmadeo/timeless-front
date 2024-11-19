@@ -36,6 +36,16 @@ import { useAuth } from "../lib/authProvider";
 
 const libraries = ["places"];
 
+const dayDictionary = {
+  1: "Lunes",
+  2: "Martes",
+  3: "Miércoles",
+  4: "Jueves",
+  5: "Viernes",
+  6: "Sábado",
+  7: "Domingo",
+};
+
 const ReservarTurno = () => {
   const [location, setLocation] = useState(null);
   const [companies, setCompanies] = useState([]);
@@ -364,6 +374,11 @@ const ReservarTurno = () => {
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
+  
+  const formatDiasLaborales = (dias) => {
+    return dias.split(";").map((dia) => dayDictionary[dia]).join(", ");
+  };
+
   const handleWeekChange = (date) => {
     console.log("Nueva semana seleccionada:", date);
     setSelectedDate(date);
@@ -541,6 +556,11 @@ const ReservarTurno = () => {
                           {selectedCompany.calendario.hora_apertura} -{" "}
                           {selectedCompany.calendario.hora_cierre}
                         </p>
+                        <p>
+                          <strong>Dias de atención:</strong>{" "}
+                          {formatDiasLaborales(selectedCompany.calendario.dias_laborales)}
+                        </p>
+                        {selectedLine && (
                         <div className="mt-3">
                           <p>
                             Haga clic en {" "}
@@ -548,6 +568,7 @@ const ReservarTurno = () => {
                             seleccionar un turno disponible.
                           </p>
                         </div>
+                        )}
                       </div>
                     </>
                   )}
