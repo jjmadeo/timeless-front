@@ -34,6 +34,10 @@ const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duraci
 
   const eventTitleAccessor = (event) => event.title;
 
+  const tooltipAccessor = (event) => {
+    return "Turno disponible";
+  };
+
   const handleNavigate = (date) => {
     if (view === 'week') {
       onWeekChange(date);
@@ -48,6 +52,7 @@ const TurnoCalendar = ({ onSelectEvent, events, horaApertura, horaCierre, duraci
         startAccessor="start"
         endAccessor="end"
         titleAccessor={eventTitleAccessor}
+        tooltipAccessor={tooltipAccessor}
         style={{ height: 500 }}
         selectable={false} // No permitir seleccionar espacios vacíos
         onSelectEvent={onSelectEvent}
