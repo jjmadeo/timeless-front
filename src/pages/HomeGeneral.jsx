@@ -34,6 +34,7 @@ const AppointmentCard = ({ appointment, color, data, onViewMap, onCancel }) => {
                     <div>
                         <Card.Title>{appointment.nombre_empresa}</Card.Title>
                         <Card.Text>{appointment.direccion}</Card.Text>
+                        <Card.Text>{appointment.linea_atencion_name}</Card.Text>
                     </div>
                 </div>
                 <div className="d-flex justify-content-between mt-2">
