@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../lib/authProvider";
 import "./Register.scss";
 import {
@@ -11,6 +11,10 @@ import {
   Toast,
   ToastContainer,
 } from "react-bootstrap";
+import {
+  getStaticData
+  
+} from "../../helpers/fetch";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +23,7 @@ const Register = () => {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
   const [userType, setUserType] = useState(null);
+  const [data, setData] = useState(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -39,6 +44,7 @@ const Register = () => {
   const [error, setError] = useState(false);
   const [toastMessage, setToastMessage] = useState(""); // Estado para el mensaje del toast
   const [showToast, setShowToast] = useState(false);
+  const [allowCompanyRegistration, setAllowCompanyRegistration] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,6 +53,23 @@ const Register = () => {
   const handleDateChange = (date) => {
     console.log(date);
     setFormData({ ...formData, birthDate: date });
+  };
+
+
+  useEffect(() => {
+    fetchStaticData();
+  }, []);
+
+  const fetchStaticData = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("token")).token;
+      const res = await getStaticData(token);
+      setData(res);
+      const config = res.configs_global.find(config => config.clave === "altaEmpresa");
+      setAllowCompanyRegistration(config && config.valor === "true");
+    } catch (error) {
+      console.error("Error al obtener los datos estaticos:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -119,12 +142,14 @@ const Register = () => {
             >
               Personal
             </Button>
-            <Button
-              onClick={() => setUserType("company")}
-              className="btn-user-type"
-            >
-              Empresa
-            </Button>
+            {allowCompanyRegistration && (
+              <Button
+                onClick={() => setUserType("company")}
+                className="btn-user-type"
+              >
+                Empresa
+              </Button>
+            )}
           </Card.Body>
         </Card>
       ) : (
