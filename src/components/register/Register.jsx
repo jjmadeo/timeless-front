@@ -142,7 +142,7 @@ const Register = () => {
             >
               Personal
             </Button>
-            {allowCompanyRegistration && (
+            {!allowCompanyRegistration && (
               <Button
                 onClick={() => setUserType("company")}
                 className="btn-user-type"
