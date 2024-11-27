@@ -49,6 +49,7 @@ const Schedule = () => {
         setLoading(false); // Datos cargados, desactivar el estado de carga
       };
       fetchEmpresaData();
+      setLoading(false);
     }
   }, [auth]);
 
